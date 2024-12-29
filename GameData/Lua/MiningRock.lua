@@ -67,7 +67,7 @@ MiningRock.interactionSet =
 	               icon = "uitexture-interaction-use",
 	           },
 	MineSkip = {
-	               name                 = "Fast Mine",
+	               name                 = "Quick Mine",
 	               interactionClassName = "Unlocked_I_Mine_Skip",
 	               icon = "uitexture-interaction-use",
 	           },
