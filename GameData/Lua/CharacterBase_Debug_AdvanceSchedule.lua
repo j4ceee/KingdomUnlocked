@@ -20,6 +20,11 @@ local TuningSpec =
 
 function CharacterBase_Debug_AdvanceSchedule:Action( sim, npc )
 
+    -- Disable autosave
+    if GameManager:IsAutoSave() then
+        GameManager:SetAutoSave( false )
+    end
+
     local selection = UI:DisplayModalDialog( "Debug Sim Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 4, "Make Sim idle", "Exit", "Delete Sim", "Advance Schedule" )
 
     if selection == 0 then

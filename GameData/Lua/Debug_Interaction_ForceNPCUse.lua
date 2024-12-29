@@ -22,7 +22,12 @@ function Debug_Interaction_ForceNPCUse:Action( player, obj )
                 --===========================================================================--
                 -- Cheat Menu Logic --
 
-                local selection = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 4, "Unlock bonus clothing", "Exit", "Give all resources", "Unlock all Islands" )
+                -- Disable autosave
+                if GameManager:IsAutoSave() then
+                    GameManager:SetAutoSave( false )
+                end
+
+                local selection = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 3, "Unlock bonus clothing", "Exit", "Give all resources" )
 
                 if selection == 0 then
                     for i, unlock in ipairs(PauseUnlockCodes) do
@@ -51,8 +56,35 @@ function Debug_Interaction_ForceNPCUse:Action( player, obj )
                 elseif selection == 2 then
                     AddResourcesCheat(_, true)
 
-                elseif selection == 3 then
-                    -- Unlock all islands
+                --elseif selection == 3 then
+                end
+            elseif self.params.actionKey == "db_menu_islands" then
+                -- Disable autosave
+                if GameManager:IsAutoSave() then
+                    GameManager:SetAutoSave( false )
+                end
+
+                local selection = UI:DisplayModalDialog( "Island Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 4, "Lock all islands", "Exit", "Unlock all story islands", "Unlock reward island")
+
+                if selection == 0 then -- Lock all islands
+                    local islands = Luattrib:GetAllCollections( "island" )
+                    for i,refspec in ipairs( islands ) do
+                        local bUnlocked = Unlocks:IsUnlocked( refspec[1], refspec[2] )
+                        if ( bUnlocked ) then
+                            Unlocks:Lock( refspec[1], refspec[2] )
+                        end
+                    end -- for islands
+
+                    -- unlock default islands
+                    Unlocks:Unlock( "island", "castle_island" )
+                    Unlocks:Unlock( "island", "tutorial_island" )
+
+                elseif selection == 1 then -- exit
+                    return -- Exit
+
+                elseif selection == 2 then -- unlock story islands
+                    local rewardUnlocked = Unlocks:IsUnlocked( "island", "reward_island" )
+
                     local islands = Luattrib:GetAllCollections( "island" )
                     for i,refspec in ipairs( islands ) do
                         local bUnlocked = Unlocks:IsUnlocked( refspec[1], refspec[2] )
@@ -60,8 +92,16 @@ function Debug_Interaction_ForceNPCUse:Action( player, obj )
                             Unlocks:Unlock( refspec[1], refspec[2] )
                         end
                     end -- for islands
+
+                    -- lock reward island if it was not unlocked
+                    if not rewardUnlocked then
+                        Unlocks:Lock( "island", "reward_island" )
+                    end
+
+                elseif selection == 3 then -- unlock champion island
+                    Unlocks:Unlock( "island", "reward_island" )
+
                 end
-            elseif self.params.actionKey == "db_menu2" then
 
                 --===========================================================================--
             else
