@@ -1094,6 +1094,7 @@ CharacterBase.interactionSet =
                     interactionClassName    = "CharacterBase_Interaction_Social",
                     socialClassName         = "Social_Socialize",
                     icon = "uitexture-interaction-socialize",
+                    menu_priority           = 10,
                 },
                 
     ----------------------------------
@@ -1165,21 +1166,21 @@ CharacterBase.interactionSet =
                             name                    = "Move!",
                             interactionClassName    = "CharacterBase_Interaction_Move",
                             icon = "uitexture-interaction-herd",
-                            menu_priority = 10,
+                            menu_priority = 20,
     },
 
     PushSim =           {
                             name                    = "STRING_INTERACTION_CHARACTERBASE_PushSim",
                             interactionClassName    = "CharacterBase_Debug_PushSim",
                             icon = "uitexture-interaction-warmhands",
-                            menu_priority = 11,
+                            menu_priority = 21,
     },
 
     DebugUi =   {
                             name                    = "Debug Menu",
                             interactionClassName    = "Unlocked_SocialMenu",
                             icon = "uitexture-interaction-use",
-                            menu_priority = 12,
+                            menu_priority = 22,
     },
 }
 
