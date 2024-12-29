@@ -49,6 +49,7 @@ Bathtub.interactionSet =
                     name = "STRING_INTERACTION_BATHTUB_TAKEBATH",
                     interactionClassName = "Bathtub_Interaction_TakeBath",
                     icon = "uitexture-interaction-use",
+                    menu_priority = 0,
                 },
 
     ForceNPCToUse =     {

@@ -1,13 +1,13 @@
 
-local CharacterBase_Debug_AdvanceSchedule = Classes.Job_InteractionBase:Inherit("CharacterBase_Debug_AdvanceSchedule")
-CharacterBase_Debug_AdvanceSchedule._instanceVars = {}
+local Unlocked_SocialMenu = Classes.Job_InteractionBase:Inherit("Unlocked_SocialMenu")
+Unlocked_SocialMenu._instanceVars = {}
 
-function CharacterBase_Debug_AdvanceSchedule:Test( sim, npc, autonomous )
+function Unlocked_SocialMenu:Test( sim, npc, autonomous )
     -- DEBUG ONLY
     return DebugMenu:GetValue("EnableDebugInteractions") and sim == Universe:GetPlayerGameObject() and sim ~= npc
 end
 
-function CharacterBase_Debug_AdvanceSchedule:Destructor()
+function Unlocked_SocialMenu:Destructor()
 end
 
 local TuningSpec =
@@ -18,7 +18,7 @@ local TuningSpec =
                 },
 }
 
-function CharacterBase_Debug_AdvanceSchedule:Action( sim, npc )
+function Unlocked_SocialMenu:Action( sim, npc )
 
     -- Disable autosave
     if GameManager:IsAutoSave() then

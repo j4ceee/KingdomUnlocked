@@ -1161,149 +1161,135 @@ CharacterBase.interactionSet =
     -- DEBUG INTERACTIONS
     -----------------------------------------                        
 
+    Move =              {
+                            name                    = "Move!",
+                            interactionClassName    = "CharacterBase_Interaction_Move",
+                            icon = "uitexture-interaction-herd",
+                            menu_priority = 10,
+    },
+
     PushSim =           {
-        name                    = "STRING_INTERACTION_CHARACTERBASE_PushSim",
-        interactionClassName    = "CharacterBase_Debug_PushSim",
-        icon = "uitexture-interaction-warmhands",
+                            name                    = "STRING_INTERACTION_CHARACTERBASE_PushSim",
+                            interactionClassName    = "CharacterBase_Debug_PushSim",
+                            icon = "uitexture-interaction-warmhands",
+                            menu_priority = 11,
     },
 
     DebugUi =   {
                             name                    = "Debug Menu",
-                            interactionClassName    = "CharacterBase_Debug_AdvanceSchedule",
+                            interactionClassName    = "Unlocked_SocialMenu",
                             icon = "uitexture-interaction-use",
-                        },
-
-    Move =              {
-        name                    = "Move!",
-        interactionClassName    = "CharacterBase_Interaction_Move",
-        icon = "uitexture-interaction-herd",
+                            menu_priority = 12,
     },
-
-    --[[
-    ForceNPCIdle =      {
-                            name                    = "STRING_INTERACTION_CHARACTERBASE_ForceIdle",
-                            interactionClassName    = "Debug_Interaction_ForceNPCUse",
-                            actionKey               = "Idle",
-                            tuningSpec              =
-                            {
-                                duration =  {
-                                                minSeconds  = 20,        --  duration is range of seconds and/or
-                                                maxSeconds  = 30,        --  loop counts to run the ANIMATE_LOOPS
-                                            },
-                            },
-                            icon = "uitexture-interaction-use",
-                        },
-    --]]
-
 }
 
 
 
 function CharacterBase:PostLoadInit()
 
-self._talkData["kDefaultTalk"] =
-{
+    self._talkData["kDefaultTalk"] =  
     {
-        SocialAnims     = {"talkthoughtful", "idle"},
+        {
+            SocialAnims     = {"talkthoughtful", "idle"},
+            bReverseAnims   = true,
+            
+            DIALOG_MESSAGE  = "STRING_DIALOG_TALK_CHARACTERBASE_01",
+        },
+    }
+    
+    self._talkData["kDefaultRouteFailureTalk"] =
+    {
+        SocialAnims     = {"chatsad", "idle"},
         bReverseAnims   = true,
+                    
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_ROUTE_FAILURE",
+    }
+    
+    self._talkData["KingPointLevel01"] =
+    {
+        SocialAnims     = {"chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS01",
+    }
+    
+    self._talkData["KingPointLevel02"] =
+    {
+        SocialAnims     = {"chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS02",
+    }
 
-        DIALOG_MESSAGE  = "STRING_DIALOG_TALK_CHARACTERBASE_01",
-    },
-}
+    self._talkData["KingPointLevel03"] =
+    {
+        SocialAnims     = {"chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS03",
+    }
 
-self._talkData["kDefaultRouteFailureTalk"] =
-{
-    SocialAnims     = {"chatsad", "idle"},
-    bReverseAnims   = true,
+    self._talkData["KingPointLevel04"] =
+    {
+        SocialAnims     = {"chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS04",
+    }
 
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_ROUTE_FAILURE",
-}
+    self._talkData["KingPointLevel05"] =
+    {
+        SocialAnims     = {"chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS05",
+    }   
 
-self._talkData["KingPointLevel01"] =
-{
-    SocialAnims     = {"chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS01",
-}
+    self._talkData["RelationshipLevel01"] =
+    {
+        SocialAnims     = {"chatangry", "chatsad", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP01",
+    }
+    
+    self._talkData["RelationshipLevel02"] =
+    {
+        SocialAnims     = {"chatgrumpy", "chatgrumpy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP02",
+    }
 
-self._talkData["KingPointLevel02"] =
-{
-    SocialAnims     = {"chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS02",
-}
+    self._talkData["RelationshipLevel03"] =
+    {
+        SocialAnims     = {"chatneutral", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP03",
+    }
 
-self._talkData["KingPointLevel03"] =
-{
-    SocialAnims     = {"chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS03",
-}
+    self._talkData["RelationshipLevel04"] =
+    {
+        SocialAnims     = {"chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP04",
+    }
 
-self._talkData["KingPointLevel04"] =
-{
-    SocialAnims     = {"chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS04",
-}
+    self._talkData["RelationshipLevel05"] =
+    {
+        SocialAnims     = {"chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP05",
+    }    
 
-self._talkData["KingPointLevel05"] =
-{
-    SocialAnims     = {"chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_KINGPOINTS05",
-}
+    self._talkData["RelationshipLevel06"] =
+    {
+        SocialAnims     = {"chathappy", "chathappy", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP06",
+    } 
 
-self._talkData["RelationshipLevel01"] =
-{
-    SocialAnims     = {"chatangry", "chatsad", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP01",
-}
-
-self._talkData["RelationshipLevel02"] =
-{
-    SocialAnims     = {"chatgrumpy", "chatgrumpy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP02",
-}
-
-self._talkData["RelationshipLevel03"] =
-{
-    SocialAnims     = {"chatneutral", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP03",
-}
-
-self._talkData["RelationshipLevel04"] =
-{
-    SocialAnims     = {"chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP04",
-}
-
-self._talkData["RelationshipLevel05"] =
-{
-    SocialAnims     = {"chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP05",
-}
-
-self._talkData["RelationshipLevel06"] =
-{
-    SocialAnims     = {"chathappy", "chathappy", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP06",
-}
-
-self._talkData["RelationshipLevel07"] =
-{
-    SocialAnims     = {"excited", "idle"},
-    bReverseAnims   = true,
-    DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP07",
-}
-
-
+    self._talkData["RelationshipLevel07"] =
+    {
+        SocialAnims     = {"excited", "idle"},
+        bReverseAnims   = true,
+        DIALOG_MESSAGE  = "STRING_DIALOG_TASKTALK_CHARACTERBASE_RELATIONSHIP07",
+    }   
+    
+    
 end
 
 

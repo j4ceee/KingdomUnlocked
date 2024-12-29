@@ -43,25 +43,30 @@ Couch.interactionSet =
                         interactionClassName    = "Couch_Interaction_Sit",
                         maxCount = 2,                          
                         icon = "uitexture-interaction-sit",
+                        menu_priority = 0,
                     },
                           
     Sleep =          {   name                    = "STRING_INTERACTION_COUCH_SLEEP",
                           interactionClassName    = "Couch_Interaction_Sleep",
-                          icon = "uitexture-interaction-sleep", },
+                          icon = "uitexture-interaction-sleep",
+                         menu_priority = 1,},
 
     SleepTillDay =   {   name                    = "STRING_INTERACTION_COUCH_SLEEPTILLDAY",
                           interactionClassName    = "Couch_Interaction_SleepTillDay",
-                          icon = "uitexture-interaction-sleep", },
+                          icon = "uitexture-interaction-sleep",
+                         menu_priority = 2, },
 
     SleepTillNight = {   name                    = "STRING_INTERACTION_COUCH_SLEEPTILLNIGHT",
                           interactionClassName    = "Couch_Interaction_SleepTillNight",
-                          icon = "uitexture-interaction-sleep", },
+                          icon = "uitexture-interaction-sleep",
+                         menu_priority = 3, },
 
     JumpOn =            {      
                             name                    = "STRING_INTERACTION_COUCH_JUMPON",
                             interactionClassName    = "Couch_Interaction_JumpOn",
                             maxCount = 2,
                             icon = "uitexture-interaction-use",
+                            menu_priority = 4,
                         },
 
     -- Force random interaction
@@ -70,5 +75,6 @@ Couch.interactionSet =
         interactionClassName = "Debug_Interaction_ForceNPCUse",
         actionKey = {"Sit", "Sleep", "JumpOn"},
         icon = "uitexture-interaction-use",
+        menu_priority = 5,
     },
 }
