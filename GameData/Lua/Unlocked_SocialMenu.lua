@@ -25,7 +25,33 @@ function Unlocked_SocialMenu:Action( sim, npc )
         GameManager:SetAutoSave( false )
     end
 
-    local selection = UI:DisplayModalDialog( "Debug Sim Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 4, "Make Sim idle", "Exit", "Delete Sim", "Advance Schedule" )
+    local collection, name, face, home = self:GetNPC(npc.mType)
+
+    local desc = "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).\n"
+    local title = "Debug Menu (" .. "Sim" .. ")"
+    --[[
+    TODO: find a way to get the sim's name
+        - "local name" & "npc:GetAttribute("ShortName")" all show memory addresses instead of names
+        - "local face" does return a valid face icon for some reason
+    --]]
+
+    if npc and npc ~= nil then
+
+    end
+
+    --desc = npc:GetDebugString(Classes.Schedule.kDebugTextContextName) .. "\n Spawned NPC: " .. tostring(npc) .. "\n NPC Type: " .. npc:GetTypeName() .. "\n Has Schedule: " .. tostring(npc.schedule ~= nil) .. "\n Current World: " .. Universe:GetWorld().mType
+    desc = desc .. "-\nDebug Info: \n mType: " .. npc.mType
+    --- mName = e.g. NPC_Linzey_userdata:0x0000000000000000
+    --- mType = e.g. NPC_Linzey
+
+    local debugStr = npc:GetDebugString(Classes.Schedule.kDebugTextContextName)
+    if debugStr then
+        desc = desc .. " | Schedule: " .. debugStr
+    else
+        desc = desc .. " | Schedule: Undefined"
+    end
+
+    local selection = UI:DisplayModalDialog( title, desc, face, 4, "Make Sim idle", "Exit", "Delete Sim", "Advance Schedule" )
 
     if selection == 0 then
         npc:PushInteraction( npc, "Idle",
@@ -42,7 +68,7 @@ function Unlocked_SocialMenu:Action( sim, npc )
         return
 
     elseif selection == 2 then
-        local selection_conf = UI:DisplayModalDialog( "Sim Deletion", "This will delete the Sim. Are you sure you want to continue? \n-\nWARNING: If you save the game after the Sim is deleted, it will be permanently deleted from your save.", nil, 2, "Yes", "No")
+        local selection_conf = UI:DisplayModalDialog( "Sim Deletion", "This will delete the Sim. Are you sure you want to continue? \n-\nYou can spawn the Sim again anytime via the Sim Spawn Menu at a bookshelf.", nil, 2, "Yes", "No")
         if selection_conf == 0 then
             npc:Destroy()
         end
@@ -55,7 +81,29 @@ function Unlocked_SocialMenu:Action( sim, npc )
                 npc.schedule:AdvanceToNextBlock()
             end
         end
-
     end
+end
 
+function Unlocked_SocialMenu:GetNPC(mType)
+    local refSpecs = Luattrib:GetAllCollections( "character", nil )
+
+    for i, collection in ipairs(refSpecs) do
+        collection = collection[2] -- collection key
+
+        local script = Luattrib:ReadAttribute( "character", collection, "ScriptName" )
+
+        if script == mType then
+            local homeIsland = Luattrib:ReadAttribute( "character", collection, "HomeIsland" )
+            local home = nil
+
+            if( homeIsland ~= nil ) then
+                home = homeIsland[2]
+            end
+
+            local face = Luattrib:ReadAttribute( "character", collection, "FaceIcon" ) --get face icon
+            local name = Luattrib:ReadAttribute( "character", collection, "FullName" ) --get name
+
+            return collection, name, face, home
+        end
+    end
 end

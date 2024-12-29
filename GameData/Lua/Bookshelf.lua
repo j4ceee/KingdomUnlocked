@@ -10,6 +10,14 @@ Bookshelf.interactionSet =
 					menu_priority = 0,
     },
 
+    OpenCheatsGeneral = {
+                    name = "*Open General Cheats",
+                    interactionClassName = "Unlocked_CheatMenu",
+                    actionKey = "db_menu",
+                    icon = "uitexture-interaction-inspect",
+                    menu_priority = 1,
+                },
+
     OpenCheatsIslands = {
                     name = "*Open Island Cheats",
                     interactionClassName = "Unlocked_CheatMenu",
@@ -18,11 +26,11 @@ Bookshelf.interactionSet =
                     menu_priority = 2,
     },
 
-    OpenCheatsGeneral = {
-                    name = "*Open General Cheats",
+    OpenSpawnMenu = {
+                    name = "*Open Spawn Menu",
                     interactionClassName = "Unlocked_CheatMenu",
-                    actionKey = "db_menu",
-                    icon = "uitexture-interaction-inspect",
-                    menu_priority = 1,
-                },
+                    actionKey = "db_spawn",
+                    icon = "uitexture-hud-relationships-on",
+                    menu_priority = 3,
+    },
 }

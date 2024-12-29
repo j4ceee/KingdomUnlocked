@@ -22,7 +22,7 @@ function Unlocked_CheatMenu:Action( player, obj )
                 GameManager:SetAutoSave( false )
             end
 
-            local selection = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 3, "Unlock bonus clothing", "Exit", "Give all resources" )
+            local selection = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 3, "Unlock bonus clothing", "Exit", "Give all resources")
 
             if selection == 0 then
                 for i, unlock in ipairs(PauseUnlockCodes) do
@@ -51,7 +51,7 @@ function Unlocked_CheatMenu:Action( player, obj )
             elseif selection == 2 then
                 AddResourcesCheat(_, true)
 
-                --elseif selection == 3 then
+            --elseif selection == 3 then
             end
         elseif self.params.actionKey == "db_menu_islands" then
             --===========================================================================--
@@ -100,6 +100,10 @@ function Unlocked_CheatMenu:Action( player, obj )
                 Unlocks:Unlock( "island", "reward_island" )
 
             end
+        elseif self.params.actionKey == "db_spawn" then
+            --===========================================================================--
+            -- Spawn Menu Logic --
+            UI:SpawnAndBlock( "UIRelationshipBook", "spawn" )
         end
     end	
 	

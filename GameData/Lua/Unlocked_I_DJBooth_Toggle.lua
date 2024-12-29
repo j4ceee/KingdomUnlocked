@@ -49,6 +49,7 @@ function Unlocked_I_DJBooth_Off:Destructor()
 end
 
 function Unlocked_I_DJBooth_Off:RemoteAnimCallback(animJob, eventText)
+    -- TODO: find a way to prevent the DJ booth from turning off while a sim is using it (GetInteractionJobList() also gives sims dancing to it)
     --if #self.obj:GetInteractionJobList() == 1 then -- only if no sims are using the DJ booth
         self.obj:TurnOff(false)
     --end

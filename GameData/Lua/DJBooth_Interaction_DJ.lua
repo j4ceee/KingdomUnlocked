@@ -254,7 +254,7 @@ function DJBooth_Interaction_DJ_Uber:Test( sim, obj, autonomous, interactionData
     local powerRequirement = interactionData.powerRequirement or 2.0
     
     if sim == Universe:GetPlayerGameObject() then
-        return (not obj.bIsUsed) and DebugMenu:GetValue("EnableDebugInteractions") and obj:GetWidgetPowerValue() >= powerRequirement
+        return (not obj.bIsUsed) and DebugMenu:GetValue("EnableDebugInteractions") and obj:GetWidgetPowerValue() > 0
     end
 
     return (not obj.bIsUsed) and obj:GetWidgetPowerValue() >= powerRequirement
