@@ -4,8 +4,28 @@ function Unlocked_I_Tree_PickAll:Test( sim, obj, autonomous )
 	if ( sim ~= Universe:GetPlayerGameObject() ) then
 		return false
 	end
-	
-	return self:CheckTree( obj )
+
+	if ( obj.bGrowthTransitionPending ) then
+		return false
+	end
+
+	if ( obj:GetAttribute("SavedStage") < obj.GrowthStages["TREE_GROWTH_STAGE_MATURE"] ) then
+		return false
+	end
+
+	if ( obj:GetAttribute("SavedStage") > obj.GrowthStages["TREE_GROWTH_STAGE_DYING"] ) then
+		return false
+	end
+
+	if ( not Unlocks:IsUnlocked("tools_harvesting", "harvest_low") ) then
+		return false
+	end
+
+	if ( obj:FruitCount() <= 0 ) then
+		return false
+	end
+
+	return true
 end
 
 function Unlocked_I_Tree_PickAll:Destructor()
@@ -32,30 +52,10 @@ function Unlocked_I_Tree_PickAll:Action( sim, obj )
 	-- get all trees on the island & call ShakeLoop on them
 	local trees = Common:GetAllObjectsOfTypeOnIsland( "tree" )
 	for i, tree in ipairs( trees ) do
-		if ( self:CheckTree( tree ) ) then
+		if ( self:Test( sim, tree ) ) then
 			tree:ShakeLoop()
 		end
 	end
 	
 	return result, reason
-end
-
-function Unlocked_I_Tree_PickAll:CheckTree( obj )
-	if ( obj.bGrowthTransitionPending ) then
-		return false
-	end
-
-	if ( obj:GetAttribute("SavedStage") < obj.GrowthStages["TREE_GROWTH_STAGE_MATURE"] ) then
-		return false
-	end
-
-	if ( obj:GetAttribute("SavedStage") > obj.GrowthStages["TREE_GROWTH_STAGE_DYING"] ) then
-		return false
-	end
-
-	if ( obj:FruitCount() <= 0 ) then
-		return false
-	end
-
-	return true
 end

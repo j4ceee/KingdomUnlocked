@@ -9,12 +9,24 @@ local kId = 4
 --attrib collections
 local AttribCols = {}
 
+
+-- pirate cove npcs can never have relationships, so we need to manually add them to the relationship book
+local pirateCove = {
+	"NPC_Neema",
+	"NPC_Mira",
+	"NPC_Morgan",
+	"NPC_Theodore",
+}
+
+
 UIRelationshipBook._instanceVars =
 {
 	bExitLoop = false,
 	NPCInfo = NIL,
 	Islands = NIL,
 	bSpawnMode = false,
+	clothing = NIL,
+	npc = NIL,
 }
 
 UIRelationshipBook.DefaultUISpec =
@@ -37,6 +49,8 @@ function UIRelationshipBook:Constructor()
 	self.NPCInfo = {}
 	self.Islands = {}
 	self.bSpawnMode = nil
+	self.clothing = nil
+	self.npc = nil
 end
 
 function UIRelationshipBook:CreateKeybinds()
@@ -50,18 +64,39 @@ function UIRelationshipBook:CreateKeybinds()
 	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRef)
 end
 
-function UIRelationshipBook:SetParams(mode)
+function UIRelationshipBook:SetParams(mode, npc)
 	self:CreateKeybinds()
+
+	-- Clear all entries from AttribCols (entries are cached)
+	for k in pairs(AttribCols) do
+		AttribCols[k] = nil
+	end
+
 
 	if mode == "spawn" then
 		self.bSpawnMode = true
+		self.clothing = nil
 		self.uiTblRef.TitleText = "Spawn Menu"
+		self.uiTblRef.TitleIcon = "uitexture-hud-relationships-on"
+	elseif mode == "clothing_head" and npc then
+		self.bSpawnMode = false
+		self.clothing = "head"
+		self.npc = npc
+		self.uiTblRef.TitleText = "Model Swap Menu (Head)"
+		self.uiTblRef.TitleIcon = "uitexture-interaction-change"
+	elseif mode == "clothing_body" and npc then
+		self.bSpawnMode = false
+		self.clothing = "body"
+		self.npc = npc
+		self.uiTblRef.TitleText = "Model Swap Menu (Body)"
+		self.uiTblRef.TitleIcon = "uitexture-interaction-change"
 	else
 		self.bSpawnMode = false
+		self.clothing = nil
 		self.uiTblRef.TitleText = "STRING_UI_RELATIONSHIPS_TITLE"
+		self.uiTblRef.TitleIcon = "uitexture-hud-relationships-on"
 	end
 
-	self.uiTblRef.TitleIcon = "uitexture-hud-relationships-on"
 	self.uiTblRef.BackIconTexture = "uitexture-flow-back"
 	self.uiTblRef.LockTexture = "uitexture-locked-icon-blue"
 
@@ -121,6 +156,13 @@ function UIRelationshipBook:LoopInternal()
 			if entry.type == "character" then
 				self.bExitLoop = true
 			end
+		elseif self.clothing then
+			if self.clothing == "head" then
+				self.npc:ReplaceHead(Constants.ModelsTable[AttribCols[simId].script].head)
+			elseif self.clothing == "body" then
+				self.npc:ReplaceBody(Constants.ModelsTable[AttribCols[simId].script].body)
+			end
+			self.bExitLoop = true
 		else
 			-- what to do when a sim is selected in default relationship book
 			UI:SpawnAndBlock( "UIRelationshipCard", AttribCols[simId].collection )
@@ -151,7 +193,7 @@ function UIRelationshipBook:FindCurrentIsland()
 	local world = worlds[1].refSpec
 
 	for i, island in ipairs(self.Islands) do
-		if not string.starts( tostring(island), "animals" ) then
+		if not (Common:str_starts( tostring(island), "animals" ) or tostring(island) == "extra") then
 			local myWorld = Universe:GetIslandStartingWorld( "island" , island )
 			if( world[2] == txHash and myWorld[2] == capHash ) then
 				self.uiTblRef.CurrentIsland = i-1
@@ -180,27 +222,41 @@ function UIRelationshipBook:BuildNPCList()
 	for i, v in ipairs( refSpecs ) do
 		local collection = v[2] -- collection key
 
-		-- only add sims that have a relationship (excludes things like pirate cove & credits npc)
+		local script = Luattrib:ReadAttribute( "character", collection, "ScriptName" ) -- script == sim.mType
+
 		local add
-		add = Luattrib:ReadAttribute( "character", collection, "TrackRelationship" ) -- return all npcs by setting "add" to true
+		if Luattrib:ReadAttribute( "character", collection, "TrackRelationship" ) or Common:tbl_has_value(pirateCove, script ) then
+			add = true
+		end
 
 		if( add == true ) then
 			AttribCols[#AttribCols + 1] = {
 				collection = collection,
+				script = script,
 				type = "character",
 			}
 		end
 	end
 
+	if self.clothing then
+		-- add beebee only if we're in clothing mode
+		AttribCols[#AttribCols + 1] = {
+			collection = nil,
+			script = "Beebee",
+			type = "character",
+		}
+	end
+
 	if self.bSpawnMode then
 		-- do animals #########################################################
-		local animalsSpec = Luattrib:GetAllCollections( "herdables", nil )
-
-		for i, collection in ipairs(animalsSpec) do
-			AttribCols[#AttribCols + 1] = {
-				collection = collection[2],
-				type = "herdables",
-			}
+		for animalScript, animal in pairs(Constants.AnimalTable) do
+			if animal.enabled then
+				AttribCols[#AttribCols + 1] = {
+					collection = animal.collectionKey,
+					script = animalScript,
+					type = "herdables",
+				}
+			end
 		end
 	end
 end
@@ -209,56 +265,9 @@ function UIRelationshipBook:BuildNPCInfo()
 	local animalCount = 0 -- only 8 animals fit on a page
 	local animalPage = 0 -- page number for animals
 
-	local namesAdded = { -- we only want to add each animal once (can also be used to prevent animals from being added at all)
-		"HerdableScriptObjectBase",
-		"DummyScript",
-		"HerdableTrevor2",
-		"HerdableTrevor3",
-		"HerdableTrevor4",
-
-		-- missing interactions (so cannot be deleted)
-		-- TODO: find a way to make them deletable (e.g. RelationshipBook DEspawn functionality)
-		"ToborLegs",
-		"HerdableTrevor",
-		"Bear",
-		"Panda_Cub",
-		"Raccoon",
-		"Dog",
-		"CatAnimal",
-	}
-
-	-- if there are multiple variants of an animal, show the x one in order
-	-- TODO: this is a hack, find a better way to do this (printing the collectionKeys in-game shows a memory address instead of the actual key)
-	local animalIndex = {
-		["Bobaboo"] = 3, -- use the 3rd bobaboo (fixes interactions)
-		["Cow"] = 4, -- 1 - 4 are standing, 5 is fleeing (max. 5)
-
-		["Unicorn"] = 1, -- 1 - 6 fleeing (max. 6)
-		["Hedgehog"] = 4, -- 1 - 4 fleeing (max. 4)
-		["HedgehogLarge"] = 2, -- 1 - 3 standing (max. 2)
-		["Bunny"] = 11, -- 1 - 11 standing (max. 11)
-		["Spider"] = 4, -- 1 - 3 standing, 4 fleeing (max. 4)
-		["Frog"] = 9, -- 1 - 4, 9 - 10 standing (green) | 5 - 8 standing (black) | max. 10
-
-		["Dog"] = 4, -- 2 - 4 is wandering dog (max. 4)
-		["CatAnimal"] = 3, -- 3 is following cat (max. 3)
-		 }
-
-	local imageLib = {
-		["Bobaboo"] = "uitexture-map-icon-gonk",
-		["Pig"] = "uitexture-map-icon-animal",
-		["PercyPig"] = "uitexture-map-icon-animal",
-		["Unicorn"] = "uitexture-map-icon-leaf",
-		["HerdableTrevor"] = "uitexture-npc-head-trevor",
-		["ToborLegs"] = "uitexture-npc-head-tobor",
-		["Crab"] = "uitexture-fish-crab",
-		["Spider"] = "uitexture-essence-flair-spider",
-		["Cow"] = "uitexture-figurine-cow",
-	}
-
 	for i, entry in ipairs(AttribCols) do
-		if entry.type == "character" then
-			local script = Luattrib:ReadAttribute( "character", entry.collection, "ScriptName" ) -- script == sim.mType
+		if entry.type == "character" and entry.collection then
+			local mType = entry.script
 			local homeIsland = Luattrib:ReadAttribute( "character", entry.collection, "HomeIsland" )
 			local home = nil
 
@@ -267,23 +276,41 @@ function UIRelationshipBook:BuildNPCInfo()
 			end
 
 			if( home ~= nil ) then
-				-- in the relationship book, only show sims whose island is unlocked
-				-- in spawn menu, show all sims
-				if ( Unlocks:IsUnlocked("island", home) ) or self.bSpawnMode then
-					local face = Luattrib:ReadAttribute( "character", entry.collection, "FaceIcon" ) --get face icon
-					local name = Luattrib:ReadAttribute( "character", entry.collection, "FullName" ) --get name
+				local face = Luattrib:ReadAttribute( "character", entry.collection, "FaceIcon" ) --get face icon
+				local name = Luattrib:ReadAttribute( "character", entry.collection, "FullName" ) --get name
 
-					if( self.NPCInfo[home] == nil ) then
-						self.NPCInfo[home] = {}
-						self.Islands[#self.Islands+1] = home -- add island to list
-					end
-					if( self.NPCInfo[home][script] == nil ) then
-						self.NPCInfo[home][script] = {script, name, face, i, type = entry.type}
-					end
+				if( self.NPCInfo[home] == nil ) then
+					self.NPCInfo[home] = {}
+					self.Islands[#self.Islands+1] = home -- add island to list
 				end
+				if( self.NPCInfo[home][mType] == nil ) then
+					self.NPCInfo[home][mType] = { mType, name, face, i, type = entry.type}
+				end
+			end
+		elseif entry.type == "character" and not entry.collection and self.clothing then
+			-- do extra models #########################################################
+			local extraTable = {
+				["Beebee"] = {
+					name = "Beebee",
+					icon = "uitexture-s-bunny",
+				}
+			}
+
+			-- add add any clothing items that don't have a collection key
+			local home = "extra"
+
+			if( self.NPCInfo[home] == nil ) then
+				self.NPCInfo[home] = {}
+				self.Islands[#self.Islands+1] = home
+			end
+
+			if( self.NPCInfo[home][entry.script] == nil ) then
+				self.NPCInfo[home][entry.script] = { entry.script, extraTable[entry.script].name, extraTable[entry.script].icon, i, type = entry.type }
 			end
 		elseif entry.type == "herdables" then
 			-- do animals #########################################################
+			local animalScript = entry.script
+
 			if animalCount == 8 then -- only 8 animals fit on a page, so we create a new page for the next 8
 				animalPage = animalPage + 1
 				animalCount = 0
@@ -296,29 +323,17 @@ function UIRelationshipBook:BuildNPCInfo()
 				self.Islands[#self.Islands + 1] = home
 			end
 
-			-- Try to get a proper name from the herdables attributes
-			local animalName = Luattrib:ReadAttribute("herdables", entry.collection, "ScriptName")
-
-			if animalIndex[animalName] and animalIndex[animalName] > 1 then
-				animalIndex[animalName] = animalIndex[animalName] - 1
+			if( self.NPCInfo[home][entry.collection] == nil ) then -- if the animal doesn't exist in the table
+				self.NPCInfo[home][entry.collection] = {
+					entry.collection,  -- collection
+					Constants.AnimalTable[animalScript].name, -- name
+					Constants.AnimalTable[animalScript].icon or "uitexture-interaction-pet", -- icon
+					i,                -- id
+					type = entry.type -- type (herdables)
+				}
 			end
 
-			-- check if name is already in the namesAdded table, if not add it
-			if ( not  table.has_value( namesAdded, animalName ) ) and ( animalIndex[animalName] == nil or animalIndex[animalName] == 1 ) then
-				namesAdded[#namesAdded + 1] = animalName
-
-				if( self.NPCInfo[home][entry.collection] == nil ) then -- if the animal doesn't exist in the table
-					self.NPCInfo[home][entry.collection] = {
-						entry.collection,  -- script
-						animalName,  	  -- name
-						imageLib[animalName] or "uitexture-interaction-pet", -- face icon (use default if not defined)
-						i,                -- id
-						type = entry.type -- type (herdables)
-					}
-				end
-
-				animalCount = animalCount + 1 -- we added an animal, so increment the counter
-			end
+			animalCount = animalCount + 1 -- we added an animal, so increment the counter
 		end
 	end
 
@@ -339,8 +354,10 @@ function UIRelationshipBook:BuildNPCEntries( island )
 	local player = Universe:GetPlayerGameObject()
 
 	--- set the island name
-	if string.starts( tostring(island), "animals" ) then
+	if Common:str_starts( tostring(island), "animals" ) then
 		self.uiTblRef.IslandName = "Animals " .. tonumber(string.sub( tostring(island), 8 ))+1
+	elseif island == "extra" then
+		self.uiTblRef.IslandName = "Extra"
 	else
 		self.uiTblRef.IslandName = Luattrib:ReadAttribute( "island", island, "UIIslandName" ) or "NO NAME"
 	end
@@ -360,22 +377,51 @@ function UIRelationshipBook:BuildNPCEntries( island )
 			-- sim[kName] is the name of the sim, e.g. "Lindsay"
 			-- sim[kTexture] is the face icon of the sim
 			-- sim[kScript] is the script name of the sim, e.g. "NPC_Linzey"
-			if self.bSpawnMode then
-				self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|"
-			else
-				-- Get the collection from the new AttribCols structure
-				local entry = AttribCols[ sim[kId] ]
-				if not entry then
-					self.uiTblRef[entryName] = "locked|||"
-				else
-					local relationshipData = player:GetRelationship( entry.collection )
-					if ( relationshipData == nil ) then
-						self.uiTblRef[entryName] = "locked|||"
+
+			local entryLocked = "locked|||"
+			local entry = AttribCols[sim[kId]]
+			local isPirateCove = Common:tbl_has_value(pirateCove, sim[kScript])
+
+			if entry then
+				if self.bSpawnMode then
+					if not isPirateCove then
+						-- Spawn mode, non-pirate cove entry
+						self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|"
 					else
+						-- Spawn mode, pirate cove entry
+						self.uiTblRef[entryName] = entryLocked
+					end
+				elseif self.clothing then
+					local script = sim[kScript]
+					local modelName
+
+					if Constants.ModelsTable[script] then
+						if self.clothing == "head" then
+							modelName = Constants.ModelsTable[script].head
+						elseif self.clothing == "body" then
+							modelName = Constants.ModelsTable[script].body
+						end
+					end
+
+					if modelName then
+						self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|" .. modelName
+					else
+						self.uiTblRef[entryName] = entryLocked
+					end
+				else
+					-- Relationship mode
+					local relationshipData = player:GetRelationship(entry.collection)
+					if relationshipData ~= nil or isPirateCove then
 						self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|" .. self:GetRelationshipIcon(relationshipData)
+					else
+						self.uiTblRef[entryName] = entryLocked
 					end
 				end
+			else
+				self.uiTblRef[entryName] = entryLocked
 			end
+
+
 
 			i = i + 1
 		end
@@ -402,20 +448,4 @@ function UIRelationshipBook:GetRelationshipIcon( statusLevel )
 	else
 		return "uitexture-relationship-07"
 	end
-end
-
--- Generic function to check if a string starts with a certain substring
-function string.starts(String,Start)
-	return string.sub(String,1,string.len(Start))==Start
-end
-
---- Generic function to check if a table contains a value
-function table.has_value (tab, val)
-	for index, value in ipairs(tab) do
-		if value == val then
-			return true
-		end
-	end
-
-	return false
 end

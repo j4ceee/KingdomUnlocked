@@ -1175,12 +1175,17 @@ CharacterBase.interactionSet =
                             icon = "uitexture-interaction-warmhands",
                             menu_priority = 21,
     },
+    ChangeOutfit =  {   name                    = "STRING_INTERACTION_BOAT_CHANGEOUTFIT",
+                        interactionClassName    = "Unlocked_ModelMenu",
+                        icon = "uitexture-interaction-change",
+                        menu_priority = 22,
+    },
 
     DebugUi =   {
                             name                    = "Debug Menu",
                             interactionClassName    = "Unlocked_SocialMenu",
                             icon = "uitexture-interaction-use",
-                            menu_priority = 22,
+                            menu_priority = 23,
     },
 }
 
