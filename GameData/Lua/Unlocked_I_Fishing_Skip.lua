@@ -184,6 +184,15 @@ function Unlocked_I_Fishing_Skip:Action( sim, bucket )
         castRotations = CastRotationsSpecial
     end
 
+    -- This condition is to avoid a bug when player starts fishing without fishing Rod (https://jaas.ea.com/browse/MYS-480)
+    -- Landing animation event was removing the fishing rod from the player hand bone
+    if sim:IsJumping() or  sim:IsFalling() then
+        if not self.bCanceled then
+            self:Cancel()
+        end
+        return
+    end
+
     ------------------------------------
     -- Setup members with tuning info
     ------------------------------------

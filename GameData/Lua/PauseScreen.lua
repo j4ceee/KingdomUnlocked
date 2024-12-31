@@ -129,7 +129,9 @@ function PauseScreen:Constructor()
 	--We need to handle this screen, in this matter because we're not calling it with 
 	--Spawn() or SpawnAndBlock(). This script is being instantiated from the engine side. 
 	--See PauseOptions.cpp for more details on the creation of this GameObject. -gsong
+
 	self:PostSpawn( "PauseScreen" )
+	UI:SetPauseScreen( self )
 
 end
 
@@ -191,7 +193,6 @@ end
 function PauseScreen:PreLoop()
  	
 	UIUtility:ShowScreen( self.uiTag )
-	UI:SetPauseScreen( self )
  	--self.hMusic = self:PlaySound( "pause_screen_music" )
  	
  	--check if we can save.
@@ -317,4 +318,14 @@ end
 
 function PauseScreen:AddCheatCode( cheatCodeStr, returnMsg )
 	UIEngineUtils:AptCallFunction( "AddCheatCode", nil, self.uiTag, 2, cheatCodeStr, returnMsg )
+end
+
+--==============================--
+--       Helper Functions       --
+--==============================--
+
+-- This is for the edge case when the pause menu opens behind the top screen 
+-- and the conventional close methods don't work
+function PauseScreen:ForceExit()
+	UIEngineUtils:AptCallFunction( "pressB", nil, self.uiTag, 0 )
 end

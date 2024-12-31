@@ -132,6 +132,7 @@ function UIRelationshipBook:LoopInternal()
 		if self.bSpawnMode then
 			-- what to do when a sim is selected in spawn menu
 
+			local currentWorld = Universe:GetWorld()
 			local playerSim = Universe:GetPlayerGameObject()
 			local x, y, z, rotY = playerSim:GetPositionRotation()
 			local x, z = Common:GetRelativePosition( 0, -3, x, z, rotY )
@@ -142,20 +143,34 @@ function UIRelationshipBook:LoopInternal()
 				local spawnJob = Classes.Job_SpawnObject:Spawn(
 						entry.type,           -- class (character or herdables)
 						entry.collection,     -- collection
-						Universe:GetWorld(),  -- parent world
+						currentWorld,  -- parent world
 						x, y+2.0, z,         -- position
 						rotY,
 						nil
 				)
 
-				spawnJob:Execute(Universe:GetWorld())
+				spawnJob:Execute(currentWorld)
 			end
 
 			-- characters the player will likely want to spawn only once (exit UI after spawning)
 			-- animals can be spawned multiple times
 			if entry.type == "character" then
 				self.bExitLoop = true
+				vfxY = y + 1.0
+			else
+				vfxY = y
 			end
+			-- TODO: can be moved to a common function
+			local override =
+			{
+				LifetimeInSeconds = 3.0,
+				EffectName = "sim-magicTransport-poof-effects",
+				EffectPriority = FXPriority.High,
+			}
+
+			local spawnJob = Classes.Job_SpawnObject:Spawn( "effect", "default", currentWorld, x, vfxY, z, rotY, override )
+			spawnJob:Execute(self)
+
 		elseif self.clothing then
 			if self.clothing == "head" then
 				self.npc:ReplaceHead(Constants.ModelsTable[AttribCols[simId].script].head)
@@ -163,6 +178,29 @@ function UIRelationshipBook:LoopInternal()
 				self.npc:ReplaceBody(Constants.ModelsTable[AttribCols[simId].script].body)
 			end
 			self.bExitLoop = true
+
+			self.npc:PushInteraction( self.npc, "Idle",
+					{ tuningSpec =
+					  {
+						  duration =  {
+							  minSeconds  = 4,        --  duration is range of seconds and/or
+							  maxSeconds  = 4,        --  loop counts to run the ANIMATE_LOOPS
+						  },
+					  },
+					} )
+
+			--spawn vfx
+			local x, y, z, rotY = self.npc:GetPositionRotation()
+
+			local override =
+			{
+				LifetimeInSeconds = 4.0,
+				EffectName = "sim-magicTransport-start-effects",
+				EffectPriority = FXPriority.High,
+			}
+
+			local spawnJob = Classes.Job_SpawnObject:Spawn( "effect", "default", Universe:GetWorld(), x, y, z, rotY, override )
+			spawnJob:Execute(self)
 		else
 			-- what to do when a sim is selected in default relationship book
 			UI:SpawnAndBlock( "UIRelationshipCard", AttribCols[simId].collection )

@@ -1118,6 +1118,17 @@ CharacterBase.interactionSet =
                     menu_priority           = 0,
                     icon = "uitexture-interaction-talk",
                 },
+
+    --------------------------------------------
+    -- Teleport  
+    --  Teleport stuck NPC to world safe start position
+    --------------------------------------------
+    Teleport =      {
+        name                    = "STRING_INTERACTION_CHARACTERBASE_TELEPORT",
+        interactionClassName    = "CharacterBase_Interaction_TeleportToSafePosition",
+        menu_priority           = 23,
+        icon = "uitexture-interaction-teleport",
+    },
                 
     -----------------------------------------   
     -- TaskPendingComplain
@@ -1173,19 +1184,19 @@ CharacterBase.interactionSet =
                             name                    = "STRING_INTERACTION_CHARACTERBASE_PushSim",
                             interactionClassName    = "CharacterBase_Debug_PushSim",
                             icon = "uitexture-interaction-warmhands",
-                            menu_priority = 21,
+                            menu_priority = 22,
     },
     ChangeOutfit =  {   name                    = "STRING_INTERACTION_BOAT_CHANGEOUTFIT",
                         interactionClassName    = "Unlocked_ModelMenu",
                         icon = "uitexture-interaction-change",
-                        menu_priority = 22,
+                        menu_priority = 21,
     },
 
     DebugUi =   {
                             name                    = "Debug Menu",
                             interactionClassName    = "Unlocked_SocialMenu",
                             icon = "uitexture-interaction-use",
-                            menu_priority = 23,
+                            menu_priority = 30,
     },
 }
 

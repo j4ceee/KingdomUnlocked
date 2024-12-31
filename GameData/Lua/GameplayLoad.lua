@@ -170,6 +170,7 @@ require "CharacterBase_Interaction_Wander"
 require "CharacterBase_Interaction_FacePlayer"
 require "CharacterBase_Interaction_Interrupted"
 require "CharacterBase_Interaction_Move"
+require "CharacterBase_Interaction_TeleportToSafePosition"
 
 require "CharacterBase_Debug_AdvanceSchedule"
 require "CharacterBase_Debug_PushSim"

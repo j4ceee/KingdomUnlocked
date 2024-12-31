@@ -8,6 +8,9 @@
 -- Here are some examples for you to delete
 
 -- Startup_Settings.PlayIntoMovie = 1
+
+Log_Settings.DVD = EA.kLevelAll
+
 -- Debug_Settings.DisplayFPS = false
 
 

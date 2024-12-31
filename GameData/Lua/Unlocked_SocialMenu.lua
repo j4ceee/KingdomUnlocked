@@ -70,6 +70,20 @@ function Unlocked_SocialMenu:Action( sim, npc )
     elseif selection == 2 then
         local selection_conf = UI:DisplayModalDialog( "Sim Deletion", "This will delete the Sim. Are you sure you want to continue? \n-\nYou can spawn the Sim again anytime via the Sim Spawn Menu at a bookshelf.", nil, 2, "Yes", "No")
         if selection_conf == 0 then
+            -- TODO: can be moved to a common function
+            local npcX, npcY, npcZ, npcRotY = npc:GetPositionRotation()
+            local vfxY = npcY + 1.0
+
+            local override =
+            {
+                LifetimeInSeconds = 3.0,
+                EffectName = "sim-magicTransport-poof-effects",
+                EffectPriority = FXPriority.High,
+            }
+
+            local spawnJob = Classes.Job_SpawnObject:Spawn( "effect", "default", npc.containingWorld, npcX, vfxY, npcZ, npcRotY, override )
+            spawnJob:Execute(self)
+
             npc:Destroy()
         end
 

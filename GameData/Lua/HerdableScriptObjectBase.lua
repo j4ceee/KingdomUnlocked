@@ -386,6 +386,26 @@ function HerdableScriptObjectBase:LoadCallback()
 	if self.bHerded == nil then
 		self.bHerded = false
 	end
+	
+	if self.bHerded == false and Class:MemberExists(self, "bAllowPositionReset") == true then
+
+		if self.bAllowPositionReset == true then
+
+			if Class:MemberExists(self, "herdSpawnX") == true then
+				-- If spawned by cutscene, grab cutscene position and orientation
+				self:SetPositionRotation( self.herdSpawnX, self.herdSpawnY, self.herdSpawnZ, self.herdSpawnRotY )
+			else
+				-- If not spawned by cutscene, use attributes from entity on attribulator
+				local position = self:GetDefaultAttribute( "Position" )
+				local orientation = self:GetDefaultAttribute( "Orientation" )
+
+				if position ~= nil and orientation ~= nil then
+					self:SetPositionRotation( position.x, position.y, position.z, orientation.y )
+				end
+			end
+
+		end
+	end
 end
 
 --=========================================--
@@ -426,11 +446,18 @@ HerdableScriptObjectBase.interactionSet =
 		menu_priority = 21,
 	},
 
+	Teleport =      {
+		name                    = "STRING_INTERACTION_CHARACTERBASE_TELEPORT",
+		interactionClassName    = "CharacterBase_Interaction_TeleportToSafePosition",
+		menu_priority           = 22,
+		icon = "uitexture-interaction-teleport",
+	},
+
 	DebugUi =   {
 		name                    = "Debug Menu",
 		interactionClassName    = "Unlocked_AnimalMenu",
 		icon = "uitexture-interaction-use",
-		menu_priority = 22,
+		menu_priority = 30,
 	},
 }
 
