@@ -9,7 +9,7 @@
 </p>
 <br>
 
-_Note: All features listed here exist in the latest mod version. Some features may be missing when using previous mod versions._
+_Note: All features listed here exist in the latest mod version. Some features may be missing when using previous mod versions. You can download the latest version [here](https://github.com/j4ceee/KingdomUnlocked/releases/latest)._
 
 ### Debug Interactions
 ...for Sims from the Wii game:
@@ -58,32 +58,40 @@ _Note: All features listed here exist in the latest mod version. Some features m
 
 ## Installation
 
-Download the mod & extract the ZIP file into a "KingdomUnlocked" folder.
-
-Continue from here with your platform (Nintendo Switch with CFW or [Ryujinx](https://github.com/GreemDev/Ryujinx)):
-
+- Continue from here with your platform (Nintendo Switch with CFW or [Ryujinx](https://github.com/GreemDev/Ryujinx)):
+---
 ### Switch
 
-1. **[SimpleModManager](https://github.com/nadrino/SimpleModManager)** (recommended): put the entire "KingdomUnlocked" folder from the ZIP file on your SD Card into "mods/MySims Kingdom"
+- [Download the _Switch version of the mod under "Assets"](https://github.com/j4ceee/KingdomUnlocked/releases/latest) & extract the ZIP file (on Windows: right click -> Extract All.. -> Extract).
+- You should now see a folder name like this "KingdomUnlocked_vX.Y.Z_Switch"
+- You can now install the mod manually (not recommended) or with **[SimpleModManager](https://github.com/nadrino/SimpleModManager)** (recommended)
+- Connect your Switch to your PC and copy the mod files to the SD Card of your Switch depending on your preferred method:
+
+<br>
+
+1. **[SimpleModManager](https://github.com/nadrino/SimpleModManager)** (recommended): put the entire "KingdomUnlocked_..._Switch" folder from the ZIP file on your SD Card into "mods/MySims Kingdom"
 2. the final folder structure should look like this:
     ```
     mods\
         └───MySims Kingdom\
-            └───KingdomUnlocked\
+            └───KingdomUnlocked_..._Switch\
                 └───contents\
                     └───010015401ffe0000\
                         └───romfs\
                             └───GameData\
                                 └───Lua
     ```
+ 3. enable the mod in SimpleModManager. Make sure that only 1 version is enabled at any time and disable any existing version before enabling a new one!
 ---
-- **Manual**: put the "contents" folder (located inside the "KingdomUnlocked" folder) on your SD Card (overwrite if asked)
+- **Manual**: put the "contents" folder (located inside the "KingdomUnlocked_..._Switch" folder) on your SD Card (overwrite if asked)
 
+<br>
 
 ### Ryujinx
-
+- [Download the _Ryujinx version of the mod under "Assets"](https://github.com/j4ceee/KingdomUnlocked/releases/latest) & extract the ZIP file (on Windows: right click -> Extract All.. -> Extract).
+- You should now see a folder name like this "KingdomUnlocked_vX.Y.Z_Ryujinx"
 - right click on MySims Kingdom -> "Manage Mods" -> "Add" -> now go to where you extracted the ZIP file & select the folder "KingdomUnlocked"
-- the mod should now appear as "010015401ffe0000" in the mod manager
+- the mod should now appear as "KingdomUnlocked_vX.Y.Z_Ryujinx" in the mod manager
 
 
 
