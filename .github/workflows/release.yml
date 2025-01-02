@@ -1,0 +1,215 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - master  # or main
+  workflow_dispatch:  # allows manual triggering from the UI
+
+jobs:
+  # This job runs on push and creates a release if the commit has a version
+  create-single-release:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: |
+          # Get the version from the last commit message that contains "Mod v"
+          COMMIT_MSG=$(git log -1 --format=%s)
+          if echo "$COMMIT_MSG" | grep -q "Mod v"; then
+            VERSION=$(echo "$COMMIT_MSG" | grep -o "Mod v[0-9]\+\.[0-9]\+\.[0-9]\+" | cut -d' ' -f2)
+            if [ ! -z "$VERSION" ]; then
+              # Remove the 'v' prefix for the folder name
+              VERSION_NUM=${VERSION#v}
+              echo "version=$VERSION_NUM" >> $GITHUB_OUTPUT
+              echo "version_tag=$VERSION" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No Mod version found in commit message. Skipping release creation."
+            exit 0
+          fi
+
+      - name: Create directory structure and zip
+        if: steps.get_version.outputs.version != ''
+        run: |
+          # Create the directory structure
+          mkdir -p "contents/010015401ffe0000/romfs"
+          
+          # Copy all files from the repository to the romfs directory, excluding the contents directory
+          for f in *; do
+            if [ "$f" != "contents" ] && [ "$f" != "README.md" ]; then
+                cp -r "$f" "contents/010015401ffe0000/romfs/"
+            fi
+          done
+
+          #remove uwanted files
+          find "contents/010015401ffe0000/romfs" -type f \( -name "*.png" -o -name "*.astc" -o -name "*.git*" \) -delete
+
+          # Create Ryujinx version
+          mkdir -p romfs
+          cp -r contents/010015401ffe0000/romfs/* romfs/
+          
+          # Create both zip files
+          zip -r "KingdomUnlocked_v${{ steps.get_version.outputs.version }}_Switch.zip" contents README.md
+          zip -r "KingdomUnlocked_v${{ steps.get_version.outputs.version }}_Ryujinx.zip" romfs README.md
+
+      - name: Create Release
+        if: steps.get_version.outputs.version != ''
+        run: |
+          commit_msg=$(git show -s --format=%B HEAD)
+          gh release create "${{ steps.get_version.outputs.version_tag }}" \
+            --title "KingdomUnlocked ${{ steps.get_version.outputs.version_tag }}" \
+            --notes "$commit_msg" \
+            --latest \
+            "KingdomUnlocked_v${{ steps.get_version.outputs.version }}_Switch.zip" \
+            "KingdomUnlocked_v${{ steps.get_version.outputs.version }}_Ryujinx.zip"
+
+          rm -rf "contents"
+          rm -rf "romfs"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # This job runs on manual trigger and creates releases for all missing versions
+  create-missing-releases:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history
+
+      - name: Get versions and check releases
+        id: get_versions
+        run: |
+          # Create a temporary file to store version data
+          touch versions.txt
+          
+          # Get all commit messages containing "Mod v", extract versions, and check if releases exist
+          git log --format="%H %s" | while read -r line; do
+            commit_hash=$(echo "$line" | cut -d' ' -f1)
+            commit_msg=$(echo "$line" | cut -d' ' -f2-)
+            
+            # Look specifically for "Mod v" followed by version number
+            if echo "$commit_msg" | grep -q "Mod v"; then
+              version=$(echo "$commit_msg" | grep -o "Mod v[0-9]\+\.[0-9]\+\.[0-9]\+" | cut -d' ' -f2)
+              if [ ! -z "$version" ]; then
+                # Check if this version already has a release
+                if ! gh release view "$version" >/dev/null 2>&1; then
+                  echo "$version:$commit_hash" >> versions.txt
+                fi
+              fi
+            fi
+          done
+          
+          # Sort versions in ascending order
+          sort -t: -k1V versions.txt > versions_sorted.txt
+          mv versions_sorted.txt versions.txt
+          
+          # Read and format versions for output, only if versions.txt is not empty
+          if [ -s versions.txt ]; then
+            VERSIONS=$(cat versions.txt | tr '\n' ' ')
+            echo "versions=$VERSIONS" >> $GITHUB_OUTPUT
+          else
+            echo "versions=" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create releases
+        id: create_releases
+        run: |
+          # Save current (latest) files we want to keep
+          mkdir -p temp_latest/GameData_NX/Textures/Textures
+          mkdir -p temp_latest/GameData/Lua
+          cp "GameData_NX/Textures/Textures/0x00000000!0xc6cc5bdeb6fcf476.dds" temp_latest/GameData_NX/Textures/Textures/
+          cp "GameData_NX/Textures/Textures/0x00000000!0xca298c70efc9541f.dds" temp_latest/GameData_NX/Textures/Textures/
+          cp "GameData/Lua/UserSettings.lua" temp_latest/GameData/Lua
+          cp README.md temp_latest/
+        
+          #Get the highest version (last line in sorted versions.txt)
+          HIGHEST_VERSION=$(tail -n1 versions.txt | cut -d: -f1)
+          echo "Highest version is: $HIGHEST_VERSION"
+          
+          # Now create releases in ascending order
+          while read -r version_data; do
+            if [ ! -z "$version_data" ]; then
+              IFS=':' read -r version commit_hash <<< "$version_data"
+              echo "Processing version: $version"
+              
+              # Remove 'v' prefix for folder name
+              version_num=${version#v}
+              
+              # Checkout the specific commit
+              git checkout $commit_hash
+              
+              # Create the directory structure
+              mkdir -p "contents/010015401ffe0000/romfs"
+
+              # Copy all files from the repository to the romfs directory, excluding the contents directory
+              for f in *; do
+                if [ "$f" != "contents" ] && [ "$f" != "temp_latest" ] && [ "$f" != "versions.txt" ] && [ "$f" != "README.md" ]; then
+                  cp -r "$f" "contents/010015401ffe0000/romfs/"
+                fi
+              done
+
+              #remove uwanted files
+              find "contents/010015401ffe0000/romfs" -type f \( -name "*.png" -o -name "*.astc" -o -name "*.git*" \) -delete
+
+              # Copy the latest texture files to the correct location
+              cp -r temp_latest/GameData_NX "contents/010015401ffe0000/romfs/"
+              cp -r temp_latest/GameData "contents/010015401ffe0000/romfs/"
+              cp temp_latest/README.md README.md
+
+              # Create Ryujinx version
+              mkdir -p romfs
+              cp -r contents/010015401ffe0000/romfs/* romfs/
+              
+              # Create the zip file
+              zip -r "KingdomUnlocked_v${version_num}_Switch.zip" contents README.md
+              zip -r "KingdomUnlocked_v${version_num}_Ryujinx.zip" romfs README.md
+              
+              # Create the release, marking as latest only if it's the highest version
+              if [ "$version" = "$HIGHEST_VERSION" ]; then
+                echo "Creating release $version (latest)"
+                commit_msg=$(git show -s --format=%B "$commit_hash")
+                gh release create "$version" \
+                  --title "KingdomUnlocked $version" \
+                  --notes "$commit_msg" \
+                  --target "$commit_hash" \
+                  --latest \
+                  "KingdomUnlocked_v${version_num}_Switch.zip" \
+                  "KingdomUnlocked_v${version_num}_Ryujinx.zip"
+              else
+                echo "Creating release $version"
+                commit_msg=$(git show -s --format=%B "$commit_hash")
+                gh release create "$version" \
+                  --title "KingdomUnlocked $version" \
+                  --notes "$commit_msg" \
+                  --target "$commit_hash" \
+                  "KingdomUnlocked_v${version_num}_Switch.zip" \
+                  "KingdomUnlocked_v${version_num}_Ryujinx.zip"
+              fi
+              
+              # Cleanup for next iteration
+              rm -rf "contents"
+              rm -rf "romfs"
+              rm "KingdomUnlocked_v${version_num}_Switch.zip"
+              rm "KingdomUnlocked_v${version_num}_Ryujinx.zip"
+            fi
+          done < versions.txt
+
+          # Final cleanup
+          rm -rf temp_latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
