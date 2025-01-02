@@ -9,6 +9,8 @@
 </p>
 <br>
 
+_Note: All features listed here exist in the latest mod version. Some features may be missing when using previous mod versions._
+
 ### Debug Interactions
 ...for Sims from the Wii game:
 
@@ -23,7 +25,7 @@
 ### Cheat Menus
 ...when interacting with bookshelves!
 
-- 🟢 "*Unlock bonus clothing*"(usually unlocked with button combinations in the pause menu, see [MySims Fandom](https://mysims.fandom.com/wiki/Cheat_Codes_(MySims_Kingdom))﻿)
+- 🟢 "*Unlock bonus clothing*": usually unlocked with button combinations in the pause menu (see [MySims Fandom](https://mysims.fandom.com/wiki/Cheat_Codes_(MySims_Kingdom))﻿)
 - 🟢 "*Give all resources*": will give you 999 of every single resource & item
 - 🟢 "*Unlock post-game blocks*": unlocks all post-game blocks (like the DJ Booth and Dance Floors)
 - 🟠 "*Unlock all story islands*": unlocks all story islands except [Reward Island](https://mysims.fandom.com/wiki/Reward_Island)
@@ -34,7 +36,7 @@
 ### Model Swap Menu:
 
 - 🟢 give any Sim a makeover! You can mix and match any outfits & heads from existing Sims.
-- 🟢 also gives you access to the models of the [Shipwreck Cove ](https://mysims.fandom.com/wiki/Shipwreck_Cove)﻿crew and [Beebee](https://mysims.fandom.com/wiki/Beebee)﻿
+- 🟢 also gives you access to the models of the [Shipwreck Cove crew](https://mysims.fandom.com/wiki/Shipwreck_Cove#Island_Residents) and [Beebee](https://mysims.fandom.com/wiki/Beebee)﻿
 
 
 ### Spawn Menu:
@@ -58,7 +60,7 @@
 
 Download the mod & extract the ZIP file into a "KingdomUnlocked" folder.
 
-Continue from here with your platform:
+Continue from here with your platform (Nintendo Switch with CFW or [Ryujinx](https://github.com/GreemDev/Ryujinx)):
 
 ### Switch
 
@@ -85,7 +87,7 @@ Continue from here with your platform:
 
 
 
-_**Colour Codes:**_
+## Colour Codes
 - 🟢**Safe** = you really have to try hard to break things
 - 🔵**Generally Safe** = there is a possibility you may break something, although very slim
 - 🟠**Potentially Unsafe** = no game breaking bugs were found during testing, these options may have unexpected side effects
