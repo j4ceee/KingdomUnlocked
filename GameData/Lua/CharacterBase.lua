@@ -70,6 +70,10 @@ CharacterBase._instanceVars =
     returnControlJob			= NIL, -- the job we are sleeping on while somebody else is in control
     
     bRegisteredPlayerCollision  = false,
+
+    bHasCheckedForMissingRewards = false,
+
+    npcType = NIL,
 }
 
 
@@ -213,6 +217,9 @@ function CharacterBase:LoadCallback()
         end
     end
     self.activeQuests = questTalkList
+
+    -- Set npc type for missing rewards check
+    self.npcType = Luattrib:ReadAttribute("character", collectionKey, "ScriptName")
     
     Task:UpdateBobByState(self)
 end
@@ -1178,8 +1185,8 @@ CharacterBase.interactionSet =
                             interactionClassName    = "CharacterBase_Interaction_Move",
                             icon = "uitexture-interaction-herd",
                             menu_priority = 20,
-    },
-
+                        },
+                        
     PushSim =           {
                             name                    = "STRING_INTERACTION_CHARACTERBASE_PushSim",
                             interactionClassName    = "CharacterBase_Debug_PushSim",
@@ -1197,7 +1204,7 @@ CharacterBase.interactionSet =
                             interactionClassName    = "Unlocked_SocialMenu",
                             icon = "uitexture-interaction-use",
                             menu_priority = 30,
-    },
+                                            },
 }
 
 

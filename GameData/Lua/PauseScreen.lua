@@ -130,8 +130,9 @@ function PauseScreen:Constructor()
 	--Spawn() or SpawnAndBlock(). This script is being instantiated from the engine side. 
 	--See PauseOptions.cpp for more details on the creation of this GameObject. -gsong
 
+	UI:SetPauseScreenOpening( 1 )
+
 	self:PostSpawn( "PauseScreen" )
-	UI:SetPauseScreen( self )
 
 end
 
@@ -193,6 +194,10 @@ end
 function PauseScreen:PreLoop()
  	
 	UIUtility:ShowScreen( self.uiTag )
+	UI:SetPauseScreen( self )
+
+	UI:SetPauseScreenOpening( 0 )
+
  	--self.hMusic = self:PlaySound( "pause_screen_music" )
  	
  	--check if we can save.
