@@ -9,16 +9,6 @@ local kId = 4
 --attrib collections
 local AttribCols = {}
 
-
--- pirate cove npcs can never have relationships, so we need to manually add them to the relationship book
-local pirateCove = {
-	"NPC_Neema",
-	"NPC_Mira",
-	"NPC_Morgan",
-	"NPC_Theodore",
-}
-
-
 UIRelationshipBook._instanceVars =
 {
 	bExitLoop = false,
@@ -263,7 +253,7 @@ function UIRelationshipBook:BuildNPCList()
 		local script = Luattrib:ReadAttribute( "character", collection, "ScriptName" ) -- script == sim.mType
 
 		local add
-		if Luattrib:ReadAttribute( "character", collection, "TrackRelationship" ) or Common:tbl_has_value(pirateCove, script ) then
+		if Luattrib:ReadAttribute( "character", collection, "TrackRelationship" ) or Common:tbl_has_value(Constants.PirateCoveScripts, script ) then
 			add = true
 		end
 
@@ -418,7 +408,7 @@ function UIRelationshipBook:BuildNPCEntries( island )
 
 			local entryLocked = "locked|||"
 			local entry = AttribCols[sim[kId]]
-			local isPirateCove = Common:tbl_has_value(pirateCove, sim[kScript])
+			local isPirateCove = Common:tbl_has_value(Constants.PirateCoveScripts, sim[kScript])
 
 			if entry then
 				if self.bSpawnMode then

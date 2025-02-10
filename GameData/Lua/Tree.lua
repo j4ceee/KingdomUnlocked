@@ -850,6 +850,7 @@ Tree.interactionSet =
 	          interactionClassName    = "Tree_Interaction_Chop",
 	          metaState               = MetaStates.TreeChop,
 	          icon = "uitexture-interaction-chop",
+			  menu_priority = 2
 	        },
 	Plant = { name                    = "STRING_INTERACTION_TREE_PLANT",
 	          interactionClassName    = "Tree_Interaction_Plant",
@@ -858,10 +859,12 @@ Tree.interactionSet =
 	Stomp = { name                    = "STRING_INTERACTION_TREE_STOMP",
 	          interactionClassName    = "Tree_Interaction_Stomp",
 	          icon = "uitexture-interaction-stomp",
+			  menu_priority = 0
 	        },
 	Water = { name                    = "STRING_INTERACTION_TREE_WATER",
 	          interactionClassName    = "Tree_Interaction_Water",
 	          icon = "uitexture-interaction-water",
+			  menu_priority = 3
 	        },
 	Harvest = { name                  = "STRING_INTERACTION_TREE_HARVEST",
 		interactionClassName   		  = "Tree_Interaction_Harvest",
@@ -872,5 +875,15 @@ Tree.interactionSet =
 		interactionClassName   		  = "Unlocked_I_Tree_PickAll",
 		icon = "uitexture-interaction-harvest",
 		menu_priority = 1
+	},
+	WaterAll = { name                  = "Water All",
+	   interactionClassName   		  = "Unlocked_I_Tree_WaterAll",
+	   icon = "uitexture-interaction-water",
+	   menu_priority = 4
+	},
+	ScaleTree = { name                  = "Scale Tree",
+				 interactionClassName   		  = "Unlocked_I_Scale_Object",
+				 icon = "uitexture-interaction-trade",
+				 menu_priority = 10
 	},
 }

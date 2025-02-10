@@ -17,6 +17,10 @@ function Unlocked_CheatMenu:Action( player, obj )
             --===========================================================================--
             -- Cheat Menu Logic --
 
+            if EA.LogMod then
+                EA:LogMod("KingdomUnlocked", "Opened Cheat Menu")
+            end
+
             -- Disable autosave
             if GameManager:IsAutoSave() then
                 GameManager:SetAutoSave( false )
@@ -61,6 +65,10 @@ function Unlocked_CheatMenu:Action( player, obj )
         elseif self.params.actionKey == "db_menu_islands" then
             --===========================================================================--
             -- Island Cheat Menu Logic --
+
+            if EA.LogMod then
+                EA:LogMod("KingdomUnlocked", "Opened Island Cheat Menu")
+            end
 
             -- Disable autosave
             if GameManager:IsAutoSave() then
@@ -108,6 +116,11 @@ function Unlocked_CheatMenu:Action( player, obj )
         elseif self.params.actionKey == "db_spawn" then
             --===========================================================================--
             -- Spawn Menu Logic --
+
+            if EA.LogMod then
+                EA:LogMod("KingdomUnlocked", "Opened Spawn Menu")
+            end
+
             UI:SpawnAndBlock( "UIRelationshipBook", "spawn" )
         end
     end	

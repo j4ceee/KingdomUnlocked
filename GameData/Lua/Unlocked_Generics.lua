@@ -1,11 +1,17 @@
 --- Generic function to check if a string starts with a certain substring
+--- @param String string The string to check
+--- @param Start string The substring to check for
+--- @return boolean
 function Common:str_starts(String,Start)
     return string.sub(String,1,string.len(Start))==Start
 end
 
 --- Generic function to check if a table contains a value
+--- @param tab table The table to search in
+--- @param val any The value to search for
+--- @return boolean
 function Common:tbl_has_value (tab, val)
-    for index, value in ipairs(tab) do
+    for _, value in ipairs(tab) do
         if value == val then
             return true
         end
@@ -28,6 +34,120 @@ function Common:FindSimOnCurrentIsland( typeName )
 
     return nil -- not found on any world
 end
+
+--- makes an object fly up and stay there for an amount of frames
+--- @param obj any The object to fly (required)
+--- @param upY number The amount of units to fly up (defaults to 2)
+--- @param frameCount number The amount of frames to stay in the air (defaults to 120)
+function Common:FakeFly( obj, upY, frameCount )
+    if not ( obj ) then
+        EA:LogMod("FakeFly", "Missing game object to fly")
+        return
+    end
+
+    upY = upY or 2
+    frameCount = frameCount or 120
+
+    local frame = 0
+
+    local _, startY, _, _ = obj:GetPositionRotation()
+
+    finalY = startY + upY
+
+    local function easeOutCubic(t)
+        local v = 1 - t
+        return 1 - v * v * v
+    end
+
+    local function easeOutQuartic(t)
+        local v = 1 - t
+        return 1 - v * v * v * v
+    end
+
+    local currentWorld = Universe:GetWorld()
+
+    local function PositionClosure( job )
+        local curX, _, curZ, curRot =obj:GetPositionRotation()
+
+        -- Calculate progress (0 to 1)
+        local progress = frame / frameCount
+        -- Apply easing to the progress
+        local easedProgress = easeOutQuartic(progress)
+        -- Calculate new Y position using eased progress
+        local y = startY + (finalY - startY) * easedProgress
+
+        obj:SetPositionRotation( curX, y, curZ, curRot )
+
+        --position = { x = x, y = y, z = z }
+        --CameraController:SetFixedCamera( { x = curX, y = y + 10, z = curZ }, { x = curX, y = y, z = curZ }, 0.1 )
+        local initFunc = function( block )
+            if block then
+                block:SetScale( 0 )
+                block:Destroy()
+            end
+        end
+
+        local spawnJob = Classes.Job_SpawnObject:Spawn(
+                "block",           -- class (character or herdables)
+                "food_placesetting_01",     -- collection
+                currentWorld,  -- parent world
+                curX, y, curZ,         -- position
+                curRot
+        )
+
+        spawnJob:SetInitFunction( initFunc )
+
+        spawnJob:Execute(currentWorld)
+
+        if frame == frameCount then
+            job:Destroy()
+        end
+        frame = frame + 1
+    end
+
+    local job = Classes.Job_PerFrameFunctionCallback:Spawn( PositionClosure )
+    job:ExecuteAsIs()
+
+    return job
+end
+
+function Common:ScaleObject( obj, finalScale, frameCount )
+
+    local frame = 0
+    local initialScale = obj:GetScale()
+
+    if initialScale ~= finalScale then
+
+        local function ScaleClosure( job )
+            local scale = ((finalScale-initialScale)/frameCount)*frame + initialScale
+
+            obj:SetScale( scale )
+
+            if obj.fVisScale then
+                obj.fVisScale = scale
+            end
+
+            if frame == frameCount then
+                job:Destroy()
+            end
+            frame = frame + 1
+        end
+
+        local job = Classes.Job_PerFrameFunctionCallback:Spawn( ScaleClosure )
+        job:ExecuteAsIs()
+
+        return job
+    end
+end
+
+
+--- Table containing all mTypes of the NPCs on pirate cove
+Constants.PirateCoveScripts = {
+    "NPC_Neema",
+    "NPC_Mira",
+    "NPC_Morgan",
+    "NPC_Theodore",
+}
 
 --- Table containing names & icons of all herdables (by script names / mType)
 Constants.AnimalTable = {

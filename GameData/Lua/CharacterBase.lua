@@ -74,12 +74,18 @@ CharacterBase._instanceVars =
     bHasCheckedForMissingRewards = false,
 
     npcType = NIL,
+
+    fVisScale = 1.0,
 }
 
 
 --===================--
 -- Script Functions -- 
 --===================--
+
+function CharacterBase:SetMySpecificScale()
+    self:SetScale( self.fVisScale )
+end
 
 --=============================
 -- CharacterBase:Constructor()
@@ -1180,31 +1186,40 @@ CharacterBase.interactionSet =
     -- DEBUG INTERACTIONS
     -----------------------------------------                        
 
-    Move =              {
-                            name                    = "Move!",
-                            interactionClassName    = "CharacterBase_Interaction_Move",
-                            icon = "uitexture-interaction-herd",
-                            menu_priority = 20,
-                        },
-                        
-    PushSim =           {
-                            name                    = "STRING_INTERACTION_CHARACTERBASE_PushSim",
-                            interactionClassName    = "CharacterBase_Debug_PushSim",
-                            icon = "uitexture-interaction-warmhands",
-                            menu_priority = 22,
+    Move =  {
+                        name                    = "Move!",
+                        interactionClassName    = "CharacterBase_Interaction_Move",
+                        icon = "uitexture-interaction-herd",
+                        menu_priority = 20,
     },
-    ChangeOutfit =  {   name                    = "STRING_INTERACTION_BOAT_CHANGEOUTFIT",
+                        
+    PushSim =  {
+                        name                    = "STRING_INTERACTION_CHARACTERBASE_PushSim",
+                        interactionClassName    = "CharacterBase_Debug_PushSim",
+                        icon = "uitexture-interaction-warmhands",
+                        menu_priority = 22,
+    },
+    ChangeOutfit =  {
+                        name                    = "STRING_INTERACTION_BOAT_CHANGEOUTFIT",
                         interactionClassName    = "Unlocked_ModelMenu",
                         icon = "uitexture-interaction-change",
                         menu_priority = 21,
     },
-
+    --[[
+    TODO: find a way to keep scale when interacting with objects & falling out of world
+    ScaleSim = {
+                        name                  = "Scale Sim",
+                        interactionClassName  = "Unlocked_I_Scale_Object",
+                        icon = "uitexture-interaction-trade",
+                        menu_priority = 29,
+    },
+    --]]
     DebugUi =   {
-                            name                    = "Debug Menu",
-                            interactionClassName    = "Unlocked_SocialMenu",
-                            icon = "uitexture-interaction-use",
-                            menu_priority = 30,
-                                            },
+                        name                    = "Debug Menu",
+                        interactionClassName    = "Unlocked_SocialMenu",
+                        icon = "uitexture-interaction-use",
+                        menu_priority = 30,
+    },
 }
 
 
