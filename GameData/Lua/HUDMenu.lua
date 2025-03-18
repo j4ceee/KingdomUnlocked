@@ -56,6 +56,12 @@ System:MakeTableConst(HUDMenu.DefaultUISpec)
 --============================--
 -- Engine interface functions --
 --============================--
+function HUDMenu:Destructor()
+	KeybindUtils:KeybindChangeRemoveListener(self.uiTags[kSwfIndex_HUDMenu])
+	KeybindUtils:KeybindChangeRemoveListener(self.uiTags[kSwfIndex_HUDInfoPanel])
+	KeybindUtils:KeybindChangeRemoveListener(self.uiTags[kSwfIndex_InteractionMenu])
+end
+
 function HUDMenu:Constructor()
 	--create the condition that the UI SWFs will use
 	self.condition = ConditionCreate(); -- temporary - to be removed once all "test" UI is moved to final shipping scripts
@@ -101,30 +107,40 @@ end
 function HUDMenu:CreateKeybinds()
 	-- Create an Array with your Keybinds
 	local keybinds = {}
-	table.insert(keybinds, KeybindUtils:NewKeybind(510, 80, "MINUS", "CENTER", 0, 0))
+	table.insert(keybinds, KeybindUtils:NewKeybind(510, 80, "CENTER", 0, 0, KeybindUtils.Actions.ActionTravelogue))
+	table.insert(keybinds, KeybindUtils:NewKeybind(490, 22, "CENTER", -10, -10, KeybindUtils.Actions.ActionTraveloguePC))
 
 	-- Add them to this screen table
-	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRefs[kSwfIndex_HUDInfoPanel])
+	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRefs[kSwfIndex_HUDInfoPanel], self.uiTags[kSwfIndex_HUDInfoPanel])
 end
 
 function HUDMenu:CreateKeybindsHUDMenu()
 	-- Create an Array with your Keybinds
 	local keybinds  = {}	
-	table.insert(keybinds, KeybindUtils:NewKeybind(585, 40, "DP_UP", "CENTER", 0, 0))
-	table.insert(keybinds, KeybindUtils:NewKeybind(585, 80, "DP_DOWN", "CENTER", 0, 0))
+	table.insert(keybinds, KeybindUtils:NewKeybind(585, 40, "CENTER", 0, 0, KeybindUtils.Actions.ActionMoveUp))
+	table.insert(keybinds, KeybindUtils:NewKeybind(585, 80, "CENTER", 0, 0, KeybindUtils.Actions.ActionMoveDown))
+	table.insert(keybinds, KeybindUtils:NewKeybind(554, 19, "CENTER", 2, 2, KeybindUtils.Actions.ActionToolsTAB))
 
 	-- Add them to this screen table
-	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRefs[kSwfIndex_HUDMenu])
+	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRefs[kSwfIndex_HUDMenu], self.uiTags[kSwfIndex_HUDMenu])
 end
 
 function HUDMenu:CreateKeybindsInteractionMenu()
 	-- Create an Array with your Keybinds
 	local keybinds  = {}	
-	table.insert(keybinds, KeybindUtils:NewKeybind(-35, 28, "DP_LEFT", "CENTER", 0, 0))
-	table.insert(keybinds, KeybindUtils:NewKeybind(7, 28, "DP_RIGHT", "CENTER", 0, 0))
+
+	-- Controller Keybinds
+	table.insert(keybinds, KeybindUtils:NewKeybind(-35, 28, "CENTER", 0, 0, KeybindUtils.Actions.ActionMoveLeftInteractions))
+	table.insert(keybinds, KeybindUtils:NewKeybind(7, 28, "CENTER", 0, 0, KeybindUtils.Actions.ActionMoveRightInteractions))
+
+	-- Keyboard keybinds are bigger then controller ones
+	table.insert(keybinds, KeybindUtils:NewKeybind(-62, 18, "CENTER", 40, 40, KeybindUtils.Actions.ActionMoveLeftInteractionsKeyboard))
+	table.insert(keybinds, KeybindUtils:NewKeybind(13, 18, "CENTER", 40, 40, KeybindUtils.Actions.ActionMoveRightInteractionsKeyboard))
+
+	table.insert(keybinds, KeybindUtils:NewKeybind(25, 28, "CENTER", 0, 0, KeybindUtils.Actions.ActionInteraction))
 
 	-- Add them to this screen table
-	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRefs[kSwfIndex_InteractionMenu])
+	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRefs[kSwfIndex_InteractionMenu], self.uiTags[kSwfIndex_InteractionMenu])
 end
 
 --===========================--
@@ -466,6 +482,7 @@ end
 
 function HUDMenu:ShowInteractionMenu()
 	UIUtility:ShowScreen( self.uiTags[kSwfIndex_InteractionMenu] )
+	KeybindUtils:UpdateScreenKeybinds(self.uiTblRefs[kSwfIndex_InteractionMenu].KeybindTrack, KeybindUtils.CurrentDeviceID)
 	
 	self:UpdateInteractionMenuTimerCB()	
 	
@@ -484,6 +501,7 @@ end
 
 function HUDMenu:ShowTaskInfoButton()
 	UIUtility:ShowScreen( self.uiTags[kSwfIndex_HUDInfoPanel] )
+	KeybindUtils:UpdateScreenKeybinds(self.uiTblRefs[kSwfIndex_HUDInfoPanel].KeybindTrack, KeybindUtils.CurrentDeviceID)
 end
 
 function HUDMenu:HideTaskInfoButton()
@@ -515,6 +533,7 @@ function HUDMenu:ShowHUDPuckAndChangeIcon( modeEnum )
 	self:UpdateHUDMenuOptions( modeEnum )
 
 	UIUtility:ShowScreen( self.uiTags[kSwfIndex_HUDMenu] )
+	KeybindUtils:UpdateScreenKeybinds(self.uiTblRefs[kSwfIndex_HUDMenu].KeybindTrack, KeybindUtils.CurrentDeviceID)
 end
  	
 function HUDMenu:HideHUDPuck()	

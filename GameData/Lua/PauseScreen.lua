@@ -139,10 +139,10 @@ end
 function PauseScreen:CreateKeybinds()
 	-- Create an Array with your Keybinds
 	local keybinds  = {} 
-	table.insert(keybinds, KeybindUtils:NewKeybind(6, 6, "B", "BOTTOM_RIGHT", 0, 0))
+	table.insert(keybinds, KeybindUtils:NewKeybind(6, 6, "BOTTOM_RIGHT", 0, 0, KeybindUtils.Actions.ActionBack))
 
 	-- Add them to this screen table
-	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRef)
+	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRef, self.uiTag)
 end
 
 function PauseScreen:Destructor()
@@ -153,6 +153,7 @@ function PauseScreen:Destructor()
 	end
 --]]	
 	UI:ClearPauseScreen( self )
+	KeybindUtils:KeybindChangeRemoveListener( self.uiTag )	
 end
 
 function PauseScreen:GetBrokerTypeName()
@@ -198,6 +199,7 @@ function PauseScreen:PreLoop()
 
 	UI:SetPauseScreenOpening( 0 )
 
+	KeybindUtils:UpdateScreenKeybinds(self.uiTblRef.KeybindTrack, KeybindUtils.CurrentDeviceID)
  	--self.hMusic = self:PlaySound( "pause_screen_music" )
  	
  	--check if we can save.

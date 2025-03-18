@@ -7,6 +7,8 @@ local Unlocked_I_Fishing_Skip = Classes.Job_InteractionBase:Inherit("Unlocked_I_
 
 local DEBUG_USE_CAMERA          = true      -- Enables/Disables fixed camera
 local DEBUG_HIDE_CURSOR         = false     -- Enables/Disables hiding of the UI cursor
+local DEBUG_GESTURE_CAST        = false     -- Enables/Disables all gesture casts
+local DEBUG_GESTURE_CAST_ALWAYS = false     -- Enables/Disables all gesture casts beyond the first  cast
 
 Unlocked_I_Fishing_Skip._instanceVars =
 {
@@ -248,9 +250,42 @@ function Unlocked_I_Fishing_Skip:Action( sim, bucket )
 
             self.animKey = "kCast"
 
-            ----------
-            -- Fish
-            ----------
+            if DEBUG_GESTURE_CAST then
+
+                ----------------------------------
+                -- First Cast, or always
+                --
+                if self.bFirstCast or DEBUG_GESTURE_CAST_ALWAYS then
+
+                    ---------------------------
+                    -- Start Cast Breathe Loop
+                    local animLoopJob = sim:GetPlayAnimationJob( AnimTables[self.animDirection]["kBreatheCast"], 0 )
+                    animLoopJob:Execute(self)
+
+                    bucket:RegisterGesture("GestureCast")
+
+                    while (not bucket:QueryGesture("GestureCast")) and result == BlockingResult.Succeeded do
+
+                        result, reason = self:Sleep( Clock.Sim, 0, 0, 0, 1 )
+                    end
+
+                    bucket:UnregisterGesture("GestureCast")
+
+                    -----------------------------
+                    -- Signal Cast Breathe Loop
+                    animLoopJob:Signal( BlockingResult.Succeeded, 0 )
+
+                    if result ~= BlockingResult.Succeeded then
+                        break   -- Break out of while loop
+                    end
+
+                end
+
+            end
+
+        ----------
+        -- Fish
+        ----------
         else
 
             ------------
@@ -454,6 +489,7 @@ function Unlocked_I_Fishing_Skip:StartCursor(sim, bucket)
         cursor.waterHeight = self.waterHeight
         cursor.fishingAction = self
         self.fishingCursor = cursor
+        cursor:SetCursorPositionToGameObject(cursor)
     end
 
     cursor:SetInitFunction(initFunc)

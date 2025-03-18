@@ -9,7 +9,7 @@ local kId = 4
 --attrib collections
 local AttribCols = {}
 
-UIRelationshipBook._instanceVars =
+UIRelationshipBook._instanceVars = 
 {
 	bExitLoop = false,
 	NPCInfo = NIL,
@@ -34,6 +34,10 @@ UIRelationshipBook.DefaultUISpec =
 }
 System:MakeTableConst(UIRelationshipBook.DefaultUISpec)
 
+function UIRelationshipBook:Destructor()
+	KeybindUtils:KeybindChangeRemoveListener( self.uiTag )
+end
+
 function UIRelationshipBook:Constructor()
 	self.bExitLoop = false
 	self.NPCInfo = {}
@@ -46,12 +50,12 @@ end
 function UIRelationshipBook:CreateKeybinds()
 	-- Create an Array with your Keybinds
 	local keybinds = {}
-	table.insert(keybinds, KeybindUtils:NewKeybind(10, 10, KeybindUtils.Button.B, KeybindUtils.Alignment.BOTTOM_RIGHT, 0, 0))
-	table.insert(keybinds, KeybindUtils:NewKeybind(0, 10, KeybindUtils.Button.LEFT, KeybindUtils.Alignment.BOTTOM_RIGHT, 0, 0))
-	table.insert(keybinds, KeybindUtils:NewKeybind(0, 10, KeybindUtils.Button.RIGHT, KeybindUtils.Alignment.BOTTOM_RIGHT, 0, 0))
+	table.insert(keybinds, KeybindUtils:NewKeybind(10, 10, KeybindUtils.Alignment.BOTTOM_RIGHT, 0, 0, KeybindUtils.Actions.ActionBack))
+	table.insert(keybinds, KeybindUtils:NewKeybind(0, 10, KeybindUtils.Alignment.BOTTOM_RIGHT, 0, 0, KeybindUtils.Actions.Action5))
+	table.insert(keybinds, KeybindUtils:NewKeybind(0, 10, KeybindUtils.Alignment.BOTTOM_RIGHT, 0, 0, KeybindUtils.Actions.Action6))
 
 	-- Add them to this screen table
-	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRef)
+	KeybindUtils:AddKeybindsToScreen(keybinds, self.uiTblRef, self.uiTag)
 end
 
 function UIRelationshipBook:SetParams(mode, npc)
@@ -89,20 +93,21 @@ function UIRelationshipBook:SetParams(mode, npc)
 
 	self.uiTblRef.BackIconTexture = "uitexture-flow-back"
 	self.uiTblRef.LockTexture = "uitexture-locked-icon-blue"
-
+	
 	--Arrow Icons
 	self.uiTblRef.lArrowIcon = "uitexture-arrow-left"
 	self.uiTblRef.rArrowIcon = "uitexture-arrow-right"
-
+	
 	self:BuildNPCList()
 	self:BuildNPCInfo()
-
+	
 	local currentIsland = self:FindCurrentIsland() or self.Islands[1]
 	self:BuildNPCEntries( currentIsland )
 end
 
 function UIRelationshipBook:PreLoop()
 	UIUtility:ShowScreen( self.uiTag )
+	KeybindUtils:UpdateScreenKeybinds(self.uiTblRef.KeybindTrack, KeybindUtils.CurrentDeviceID)
 end
 
 function UIRelationshipBook:LoopExitTest()
@@ -200,7 +205,7 @@ function UIRelationshipBook:LoopInternal()
 	elseif( self.uiTblRef.Hit == "right" ) then
 		self:ChangePages( self.uiTblRef.CurrentIsland + 1 )
 	end
-
+	
 	self.uiTblRef.Hit = nil
 	self.uiTblRef.SimId = nil
 end
@@ -219,7 +224,7 @@ function UIRelationshipBook:FindCurrentIsland()
 
 	local worlds = Universe:GetIslandWorlds()
 	local world = worlds[1].refSpec
-
+	
 	for i, island in ipairs(self.Islands) do
 		if not (Common:str_starts( tostring(island), "animals" ) or tostring(island) == "extra") then
 			local myWorld = Universe:GetIslandStartingWorld( "island" , island )
@@ -236,7 +241,7 @@ function UIRelationshipBook:FindCurrentIsland()
 	end
 
 	self.uiTblRef.CurrentIsland = 0
-
+	
 	return nil
 end
 
@@ -245,7 +250,7 @@ function UIRelationshipBook:BuildNPCList()
 	-- get all collectionKeys for classKey "character"
 	-- returns a nested table with the collection key having index 2
 	local refSpecs = Luattrib:GetAllCollections( "character", nil )
-
+	
 	-- Get all character collections
 	for i, v in ipairs( refSpecs ) do
 		local collection = v[2] -- collection key
@@ -256,7 +261,7 @@ function UIRelationshipBook:BuildNPCList()
 		if Luattrib:ReadAttribute( "character", collection, "TrackRelationship" ) or Common:tbl_has_value(Constants.PirateCoveScripts, script ) then
 			add = true
 		end
-
+		
 		if( add == true ) then
 			AttribCols[#AttribCols + 1] = {
 				collection = collection,
@@ -364,7 +369,7 @@ function UIRelationshipBook:BuildNPCInfo()
 			animalCount = animalCount + 1 -- we added an animal, so increment the counter
 		end
 	end
-
+	
 	for i, island in ipairs(self.Islands) do
 		local count = 0
 		if( self.NPCInfo[island] ~= nil ) then
@@ -374,13 +379,13 @@ function UIRelationshipBook:BuildNPCInfo()
 		end
 		self.uiTblRef["NumSims" .. (i-1)] = count
 	end
-
+	
 	self.uiTblRef.IslandCount = #self.Islands
 end
 
 function UIRelationshipBook:BuildNPCEntries( island )
 	local player = Universe:GetPlayerGameObject()
-
+	
 	--- set the island name
 	if Common:str_starts( tostring(island), "animals" ) then
 		self.uiTblRef.IslandName = "Animals " .. tonumber(string.sub( tostring(island), 8 ))+1
@@ -395,7 +400,7 @@ function UIRelationshipBook:BuildNPCEntries( island )
 		for k,sim in pairs(self.NPCInfo[island]) do
 
 			local entryName = "Entry"..i
-
+			
 			-- nil cannot be concatenated, so set it to an empty string
 			if sim[kTexture] == nil then
 				sim[kTexture] = ""
@@ -460,7 +465,7 @@ function UIRelationshipBook:GetRelationshipIcon( statusLevel )
 	if( statusLevel == nil ) then
 		statusLevel = 0
 	end
-
+		
 	if( statusLevel < -72 ) then
 		return "uitexture-relationship-01"
 	elseif( statusLevel < -43 ) then
