@@ -5,7 +5,7 @@
   KingdomUnlocked
 </h1>
 <p align="center">
-  A mod for MySims Kingdom on the Nintendo Switch, enabling debug interactions & cheat menus
+  A mod for MySims Kingdom on the Nintendo Switch & PC, enabling debug interactions & cheat menus
 </p>
 <br>
 
@@ -49,6 +49,7 @@ _Note: All features listed here exist in the latest mod version. Some features m
 
 ### Custom interactions:
 
+- 🟢 Press the "Map" button to *fly*
 - 🟢 "*Harvest All*" for trees: shakes all trees on the island at the same time
 - 🟢 "*Quick Mine*": skips the searching part of the mining mini-game, just mine away indefinitely!
 - 🟢 "*Quick Fishing*": the location of the fish is marked with game objects. Also, you can't fail this mini-game, just press A as soon as bobber is inside the marked area
@@ -58,8 +59,16 @@ _Note: All features listed here exist in the latest mod version. Some features m
 
 ## Installation
 
-- Continue from here with your platform (Nintendo Switch with CFW or [Ryujinx](https://github.com/GreemDev/Ryujinx)):
+- Continue from here with your platform (**PC**, **Nintendo Switch** with CFW or **[Ryujinx](https://ryujinx.app/)**):
 ---
+### PC
+
+- [Download the _Steam version of the mod under "Assets"](https://github.com/j4ceee/KingdomUnlocked/releases/latest) & extract the ZIP file (on Windows: right click -> Extract All.. -> Extract).
+- You should now see a folder name like this `KingdomUnlocked_vX.Y.Z_Steam`
+- Move the `data` folder inside your `KingdomUnlocked_vX.Y.Z_Steam` folder to your game installation folder (e.g. `C:\Program Files (x86)\Steam\steamapps\common\MySims Kingdom`)
+
+---
+
 ### Switch
 
 - [Download the _Switch version of the mod under "Assets"](https://github.com/j4ceee/KingdomUnlocked/releases/latest) & extract the ZIP file (on Windows: right click -> Extract All.. -> Extract).
@@ -69,23 +78,25 @@ _Note: All features listed here exist in the latest mod version. Some features m
 
 <br>
 
-1. **[SimpleModManager](https://github.com/nadrino/SimpleModManager)** (recommended): put the entire "KingdomUnlocked_..._Switch" folder from the ZIP file on your SD Card into "mods/MySims Kingdom"
-2. the final folder structure should look like this:
-    ```
-    mods\
-        └───MySims Kingdom\
-            └───KingdomUnlocked_..._Switch\
-                └───contents\
-                    └───010015401ffe0000\
-                        └───romfs\
-                            └───GameData\
-                                └───Lua
-    ```
- 3. enable the mod in SimpleModManager. Make sure that only 1 version is enabled at any time and disable any existing version before enabling a new one!
----
-- **Manual**: put the "contents" folder (located inside the "KingdomUnlocked_..._Switch" folder) on your SD Card (overwrite if asked)
+- **[SimpleModManager](https://github.com/nadrino/SimpleModManager)** (recommended): put the entire "KingdomUnlocked_..._Switch" folder from the ZIP file on your SD Card into "mods/MySims Kingdom"
+  - the final folder structure should look like this:
+      ```
+      mods\
+          └───MySims Kingdom\
+              └───KingdomUnlocked_..._Switch\
+                  └───contents\
+                      └───010015401ffe0000\
+                          └───romfs\
+                              └───GameData\
+                                  └───Lua
+      ```
+  - enable the mod in SimpleModManager. Make sure that only 1 version is enabled at any time and disable any existing version before enabling a new one!
 
 <br>
+
+- **Manual**: put the "contents" folder (located inside the "KingdomUnlocked_..._Switch" folder) on your SD Card (overwrite if asked)
+
+---
 
 ### Ryujinx
 - [Download the _Ryujinx version of the mod under "Assets"](https://github.com/j4ceee/KingdomUnlocked/releases/latest) & extract the ZIP file (on Windows: right click -> Extract All.. -> Extract).
