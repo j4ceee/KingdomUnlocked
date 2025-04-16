@@ -26,27 +26,25 @@ function Unlocked_CheatMenu:Action( player, obj )
                 GameManager:SetAutoSave( false )
             end
 
-            local selection = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 4, "Unlock bonus clothing", "Exit", "Give all resources", "Unlock post-game blocks")
+            local selection = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 4, "Open Clothing Cheats", "Exit", "Give all resources", "Unlock post-game blocks")
 
             if selection == 0 then
-                for i, unlock in ipairs(PauseUnlockCodes) do
-                    local msg = unlock.unlockMsg
-                    local unlockClass = unlock.classString
-                    local unlockCollection = unlock.collectionString
+                EA:LogMod('Test', 'Opened Clothing Cheat Menu')
+                local casTables = { PauseUnlockCodes, Constants.CAS_BFF, Constants.CAS_Misc }
 
-                    if( Unlocks:IsUnlocked( unlockClass, unlockCollection ) == false ) then
-                        Unlocks:Unlock( unlockClass, unlockCollection )
+                local selectionClothes = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).\n *Work in progress (does not cover all clothing pieces yet)", nil, 4, "Unlock Bonus Clothing", "Exit", "*Unlock all Clothing", "*Lock all Clothing")
 
-                        local casUnlockItemTbl =
-                        {
-                            {
-                                "resource",
-                                "shirt",
-                            }
-                        }
+                if selectionClothes == 0 then -- Bonus Clothing
+                    self:UnlockClothes(true, { casTables[1] })
 
-                        UI:DisplayRewardDialog( casUnlockItemTbl, "STRING_UNLOCK_CAS_PRESALE_TITLE", msg, { unlockClass, unlockCollection }, nil )
-                    end
+                elseif selectionClothes == 1 then -- Exit
+                    return
+
+                elseif selectionClothes == 2 then -- unlock all clothes
+                    self:UnlockClothes(true, casTables)
+
+                elseif selectionClothes == 3 then -- lock all clothes
+                    self:UnlockClothes(false, casTables)
                 end
 
             elseif selection == 1 then
@@ -127,4 +125,55 @@ function Unlocked_CheatMenu:Action( player, obj )
 	
 	return
 end
-  
+
+--- Function to Lock or Unlock all clothing in a given table, Parameters:
+--- - unLock - boolean, true to unlock, false to lock
+--- - casTables - table containing tables with unlockable CAS items
+---
+function Unlocked_CheatMenu:UnlockClothes( unLock, casTables )
+    for i, casTable in ipairs(casTables) do
+        EA:LogMod('Test', 'Looping over table ' .. i)
+        for j, unlock in ipairs(casTable) do
+            local unlockClass = unlock.classString
+
+            local unlockCollection = unlock.collectionString
+            if (type(unlock.collectionString) ~= "table") then
+                unlockCollection = { unlockCollection }
+            end
+
+            local msg = ""
+            if (unlockClass == "reward") then
+                msg = Luattrib:ReadAttribute("reward", unlockCollection, "RewardDialogMessage" )
+            else
+                msg = unlock.unlockMsg
+            end
+
+            local didUnlock = false
+            for k, collection in ipairs(unlockCollection) do
+                if (unLock == true) then
+                    if( Unlocks:IsUnlocked( unlockClass, collection ) == false ) then
+                        Unlocks:Unlock( unlockClass, collection )
+
+                        didUnlock = true
+                    end
+                else
+                    if( Unlocks:IsUnlocked( unlockClass, collection ) == true ) then
+                        Unlocks:Lock( unlockClass, collection )
+                    end
+                end
+            end
+
+            if (unLock and didUnlock) then
+                local casUnlockItemTbl =
+                {
+                    {
+                        "resource",
+                        "shirt",
+                    }
+                }
+
+                UI:DisplayRewardDialog( casUnlockItemTbl, "STRING_UNLOCK_CAS_PRESALE_TITLE", msg, { unlockClass, unlockCollection[1] }, nil )
+            end
+        end
+    end
+end

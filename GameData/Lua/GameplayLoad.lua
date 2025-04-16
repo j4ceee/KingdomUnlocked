@@ -35,6 +35,7 @@ require "Job_InputListener"
 require "Job_ShowTextMessage"
 require "Job_RunInteractionQueue"
 require "Job_Fade"
+require "Job_TryToDeleteAHouse"
 
 require "Job_RouteToScheduleBlock"
 require "Job_RouteToCutscene"

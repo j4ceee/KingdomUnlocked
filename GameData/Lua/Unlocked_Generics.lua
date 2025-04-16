@@ -528,3 +528,336 @@ Constants.ModelsTable = {
     },
 
 }
+
+--- CAS Tables
+
+Constants.CAS_BFF = {
+    {
+        code = "",
+        unlockMsg = "Buddy & Lyndsay Outfits",
+        classString = "unlock",
+        collectionString = "buddy_lyndsay_outfits",
+    },
+
+    -- TODO: Alexa missing
+
+    {
+        code = "",
+        unlockMsg = "Barney BFF",
+        classString = "unlock",
+        collectionString = { "barney_hat", "barney_hat_female"},
+    },
+
+    {
+        code = "",
+        unlockMsg = "Chaz BFF",
+        classString = "unlock",
+        collectionString = { "chaz_unlock_male", "chaz_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Gino BFF",
+        classString = "unlock",
+        collectionString = { "chef_body", "chef_body_hat" },
+    },
+
+    -- TODO: DJ Candy missing
+    -- TODO: Dr. F missing
+
+    {
+        code = "",
+        unlockMsg = "Beverly BFF",
+        classString = "unlock",
+        collectionString = { "beverly_unlock_male", "beverly_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Elmira BFF",
+        classString = "unlock",
+        collectionString = { "elmira_body", "elmira_accessories" },
+    },
+
+    -- TODO: Gonk missing
+    -- TODO: Goth Boy missing
+
+    {
+        code = "",
+        unlockMsg = "Ruthie BFF",
+        classString = "unlock",
+        collectionString = { "ruthie_unlock_male", "ruthie_unlock_female" },
+    },
+
+    -- TODO: Hopper missing
+    -- TODO: King Roland missing
+
+    {
+        code = "",
+        unlockMsg = "Leaf BFF",
+        classString = "unlock",
+        collectionString = { "leaf_female", "leaf_body_hat" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Liberty BFF",
+        classString = "unlock",
+        collectionString = "liberty_unlock_female",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Linda Clothes", -- Linda has no relationship
+        classString = "unlock",
+        collectionString = "linda_unlock_male",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Daniel BFF",
+        classString = "unlock",
+        collectionString = { "daniel_unlock_male", "daniel_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Marlon Clothes", -- Marlon has no relationship
+        classString = "unlock",
+        collectionString = "marlon_body_hat",
+    },
+
+    -- TODO: Morcobus missing
+    -- TODO: Gabby missing
+
+    {
+        code = "",
+        unlockMsg = "Petal BFF",
+        classString = "unlock",
+        collectionString = { "petal_unisex_hats", "petal_body" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Poppy BFF",
+        classString = "unlock",
+        collectionString = { "poppy_unlock_male", "poppy_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Butter BFF",
+        classString = "unlock",
+        collectionString = { "butter_male", "butter_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Proto Makoto BFF",
+        classString = "unlock",
+        collectionString = "robotgirl_body_hat",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Renée BFF",
+        classString = "unlock",
+        collectionString = "renee_body",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Rosalyn BFF",
+        classString = "unlock",
+        collectionString = { "rosalyn_unlock_male", "rosalyn_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Roxie BFF",
+        classString = "unlock",
+        collectionString = { "roxie_unisex_cow", "roxie_body_hair" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Rusty BFF",
+        classString = "unlock",
+        collectionString = { "rusty_male", "rusty_unisex" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Sapphire BFF",
+        classString = "unlock",
+        collectionString = { "sapphire_male_raverdm", "sapphire_body", "raver2_body" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Ginny BFF",
+        classString = "unlock",
+        collectionString = "ginny_body_hat",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Spencer BFF",
+        classString = "unlock",
+        collectionString = { "spencer_unlock_male", "spencer_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Summer BFF",
+        classString = "unlock",
+        collectionString = { "summer_unlock_male", "summer_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Sylvia BFF",
+        classString = "unlock",
+        collectionString = { "sylvia_unlock_male", "sylvia_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "T.O.B.O.R. BFF",
+        classString = "unlock",
+        collectionString = "robotboy_body_hat",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Travis BFF",
+        classString = "unlock",
+        collectionString = { "travis_unlock_male", "travis_unlock_female" },
+    },
+
+    -- TODO: Trevor missing
+
+    {
+        code = "",
+        unlockMsg = "Vic Vector BFF",
+        classString = "unlock",
+        collectionString = { "vic_unlock_male", "vic_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Vincent Skullfinder BFF",
+        classString = "unlock",
+        collectionString = { "skullfinder_unlock_male", "skullfinder_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Violet BFF",
+        classString = "unlock",
+        collectionString = { "violet_unlock_male", "violet_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Yuki BFF",
+        classString = "unlock",
+        collectionString = { "yuki_unlock_male", "yuki_unlock_female" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Zack BFF",
+        classString = "unlock",
+        collectionString = { "zack_body", "zack_female_raverdm" },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Zombie Carl BFF",
+        classString = "unlock",
+        collectionString = "carl_unlock_female",
+    },
+}
+
+Constants.CAS_Misc = {
+    {
+        code = "",
+        unlockMsg = "CAS Initial",
+        classString = "unlock",
+        collectionString = {
+            "cas_initial_unlocks",
+            "initial_mouths",
+            "initial_eyes",
+            "initial_bodies",
+            "initial_hair_f",
+            "initial_hair_m",
+            "initial_hair_u",
+            "initial_hats",
+            "initial_accessories",
+        },
+    },
+
+    {
+        code = "",
+        unlockMsg = "Cowboy Junction Chest",
+        classString = "unlock",
+        collectionString = "cowboy_junction_cas_chest_unlock",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Leaf Chest",
+        classString = "unlock",
+        collectionString = "leaf_cas_chest_unlock",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Uncharted Island Chest",
+        classString = "unlock",
+        collectionString = "gonk_cas_chest_unlock",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Candy Island Chest",
+        classString = "unlock",
+        collectionString = "candy_cas_chest_unlock",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Rocket Reef Chest",
+        classString = "unlock",
+        collectionString = "rr_cas_chest_unlock",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Royalty Outfits",
+        classString = "unlock",
+        collectionString = "royalty_outfits",
+    },
+
+    {
+        code = "",
+        unlockMsg = "King Point Hairs",
+        classString = "unlock",
+        collectionString = "king_point_hairs",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Sorceress",
+        classString = "unlock",
+        collectionString = "sorceress_body_hat",
+    },
+
+    {
+        code = "",
+        unlockMsg = "Pants, Jacket, Bag",
+        classString = "unlock",
+        collectionString = "pantsjacketbag_unisex",
+    },
+}
