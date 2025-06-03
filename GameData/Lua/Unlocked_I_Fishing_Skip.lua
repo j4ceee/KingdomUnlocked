@@ -283,9 +283,9 @@ function Unlocked_I_Fishing_Skip:Action( sim, bucket )
 
             end
 
-        ----------
-        -- Fish
-        ----------
+            ----------
+            -- Fish
+            ----------
         else
 
             ------------
@@ -331,9 +331,9 @@ function Unlocked_I_Fishing_Skip:Action( sim, bucket )
                         --
                         self.bShouldCast = true
 
-                    --------------------------
-                    -- The one that got away
-                    --
+                        --------------------------
+                        -- The one that got away
+                        --
                     else
                         self.animKey = "kCatchStop"
                     end
@@ -375,7 +375,7 @@ function Unlocked_I_Fishing_Skip:Action( sim, bucket )
 
                         self.bFailedCatch = false
 
-                        self.animKey = "kCatchSucceed"
+                        self.animKey = "kCatchSucceed" --- custom code
 
                         -------------------
                         -- Need to recast
@@ -489,7 +489,7 @@ function Unlocked_I_Fishing_Skip:StartCursor(sim, bucket)
         cursor.waterHeight = self.waterHeight
         cursor.fishingAction = self
         self.fishingCursor = cursor
-        cursor:SetCursorPositionToGameObject(cursor)
+        cursor:SetCursorPositionToGameObject(cursor) -- TODO: Switch compatibility (call doesn't exist on Switch)
     end
 
     cursor:SetInitFunction(initFunc)
@@ -541,10 +541,12 @@ end
 function Unlocked_I_Fishing_Skip:FillHotspots()
     self.activeHotspots = self.activeHotspots or {}
 
+    --- custom code start
     -- Safety check to prevent overspawning
     if #self.activeHotspots >= self.maxActiveHotspots then
         return
     end
+    --- custom code end
 
     local freeIndicies = {}
 
@@ -557,7 +559,9 @@ function Unlocked_I_Fishing_Skip:FillHotspots()
     end
 
     if #freeIndicies > 0 then
+
         for i=0,(self.maxActiveHotspots - #self.activeHotspots) do
+
             if #freeIndicies > 0 then
 
                 local chosenIndex = table.remove(freeIndicies, math.random(#freeIndicies))
@@ -587,11 +591,11 @@ function Unlocked_I_Fishing_Skip:FillHotspots()
                 newHotspot.position = { x = x, y = self.waterHeight, z = z }
                 newHotspot.spawnItem = spawnItem
 
-                newHotspot.nibbleCount = spawnItem.nibbles
+                newHotspot.nibbleCount = spawnItem.nibbles --- custom code
 
                 self:HotspotFX( newHotspot, "Obj-fish-swimming", FXTransition.Soft, true )
 
-
+                --- custom code start
                 -- spawn hotspot visualizations
                 local scale = Luattrib:ReadAttribute("fishingcursor", "default", "Tuning_HotspotGrabDistance")
 
@@ -611,6 +615,7 @@ function Unlocked_I_Fishing_Skip:FillHotspots()
                         0 )
                 spawnJob:SetInitFunction( initFunc )
                 spawnJob:Execute(self)
+                --- custom code end
             end
         end
     end
@@ -679,7 +684,7 @@ function Unlocked_I_Fishing_Skip:HotspotGrabbed( bGrabbed, hotspot )
                 self:HotspotFXMove( hotspot, x, y, z )
             end
 
-            hotspot.lifeTimer = self:CreateTimer( Clock.Game, 0, 0, 0, hotspot.spawnItem.biteSeconds )
+            hotspot.lifeTimer = self:CreateTimer( Clock.Game, 0, 0, 0, hotspot.spawnItem.biteSeconds ) --- custom code
         else
             EA:Fail("Registering a hotspot before previous hotspot unregistered")
         end
@@ -949,6 +954,7 @@ end
 -- Unlocked_I_Fishing_Skip:CatchFail( hotspot ) --
 --================================================================--
 function Unlocked_I_Fishing_Skip:CatchFail( hotspot )
+    --- custom code start
     if hotspot then
         self:CleanupHotspot( hotspot )
 
@@ -961,7 +967,7 @@ function Unlocked_I_Fishing_Skip:CatchFail( hotspot )
     -- Set the fail state to trigger the recast animation
     self.bFailedCatch = true
     self:SignalBlockingOp( BlockingResult.Succeeded )
-
+    --- custom code end
 end
 
 --==============================================================--
@@ -983,12 +989,13 @@ function Unlocked_I_Fishing_Skip:Touched( hotspot )
         --self:HotspotFX( hotspot, "Obj-fish-swimming", FXTransition.Soft, true )
     end
 
+    --- custom code start
     if hotspot.nibbleCount > 0 then
         hotspot.nibbleTimer = self:CreateTimer( Clock.Game, 0, 0, 0, hotspot.spawnItem.secondsBetweenNibbles )
     else
         hotspot.biteTimer = self:CreateTimer( Clock.Game, 0, 0, 0, hotspot.spawnItem.secondsBeforeBite )
     end
-
+    --- custom code end
 end
 
 --==============================================================--
@@ -1018,14 +1025,13 @@ function Unlocked_I_Fishing_Skip:Nibble( hotspot )
     local kNibbleRumbleLoWord = 0       -- 0xa0a0 0b1010000010100000
     RumbleRemoteOnce( kNibbleRumbleLoWord, kNibbleRumbleHiWord )
 
-
+    --- custom code start
     if hotspot.nibbleCount > 0 then
         hotspot.nibbleTimer = self:CreateTimer( Clock.Game, 0, 0, 0, hotspot.spawnItem.secondsBetweenNibbles )
-
     else
         hotspot.biteTimer = self:CreateTimer( Clock.Game, 0, 0, 0, hotspot.spawnItem.secondsBeforeBite )
     end
-
+    --- custom code end
 end
 
 --=============================================================--
@@ -1172,6 +1178,7 @@ function Unlocked_I_Fishing_Skip:SetupTuning( sim, bucket )
             local tuningRefSpec = spawnItemEntry[2]
             local weight = spawnItemEntry[3]
 
+            --- custom code start
             local nibbles = 1
             EA:Assert( nibbles ~= nil )
 
@@ -1195,8 +1202,8 @@ function Unlocked_I_Fishing_Skip:SetupTuning( sim, bucket )
                 secondsBeforeBite = secondsBeforeBite,
                 biteSeconds = biteSeconds,
             }
+            --- custom code end
         end
-
     end
 
     -- Clamp max spawn points to actual max spawn point count

@@ -192,6 +192,8 @@ require "Database_NX_EULA1"
 require "Database_NX_EULA2"
 require "Database_PC_EULA1"
 require "Database_PC_EULA2"
+require "DatabaseEULA1" -- Switch compatibility
+require "DatabaseEULA2" -- Switch compatibility
 require "UIMainMenu"
 require "UILoadMenu"
 require "UIModalDialog"
@@ -533,10 +535,27 @@ require "GeyserLarge"
 require "GeyserMed"
 require "GeyserSmall"
 
-require "UIModalLogDialog"
+--require "Unlocked__Loader"
+--require "UIModalLogDialog"
 
-require "Unlocked_CheatMenu"
-require "Unlocked_SocialMenu"
+--- KingdomUnlocked Mod
+
+-- Utilities
+require "Unlocked_Generics"
+-- Overrides
+require "Unlocked_O_Objects"
+require "Unlocked_O_Characters"
+require "Unlocked_O_Animals"
+require "Unlocked_O_CAS"
+-- UI Overrides
+require "Unlocked_O_UI_RelBook"
+require "Unlocked_O_UI_HUDMenu"
+-- Menus
+require "Unlocked_M_CheatMenu"
+require "Unlocked_M_SocialMenu"
+require "Unlocked_M_AnimalMenu"
+require "Unlocked_M_ModelMenu"
+-- Interactions
 require "Unlocked_I_Tree_PickAll"
 require "Unlocked_I_Tree_WaterAll"
 require "Unlocked_I_Mine_Skip"
@@ -546,6 +565,5 @@ require "Unlocked_I_DJBooth_Toggle"
 require "Unlocked_I_Campfire_Toggle"
 require "Unlocked_I_Scale_Object"
 require "Unlocked_J_Mining_Skip"
-require "Unlocked_AnimalMenu"
-require "Unlocked_ModelMenu"
-require "Unlocked_Generics"
+-- Cheats
+require "Unlocked_Cheats"

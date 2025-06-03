@@ -28,6 +28,7 @@ Log_Settings.DVD = EA.kLevelAll
  
 -- Startup_Settings.RunCAS   = 0
 
+-- TODO: set these somewhere else to stop mod from overwriting game files
 Debug_Settings.EnableSkippingCutscenes = true
 Debug_Settings.EnableDebugInteractions = true
 --Debug_Settings.EnableFishingDebug = true

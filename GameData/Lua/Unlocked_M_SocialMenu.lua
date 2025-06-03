@@ -35,23 +35,13 @@ function Unlocked_SocialMenu:Action( sim, npc )
         - "local face" does return a valid face icon for some reason
     --]]
 
-    if npc and npc ~= nil then
-
-    end
-
-    --desc = npc:GetDebugString(Classes.Schedule.kDebugTextContextName) .. "\n Spawned NPC: " .. tostring(npc) .. "\n NPC Type: " .. npc:GetTypeName() .. "\n Has Schedule: " .. tostring(npc.schedule ~= nil) .. "\n Current World: " .. Universe:GetWorld().mType
-    desc = desc .. "-\nDebug Info: \n mType: " .. npc.mType
-    --- mName = e.g. NPC_Linzey_userdata:0x0000000000000000
-    --- mType = e.g. NPC_Linzey
+    desc = desc .. "\n\n\n\n\n\n\n\n Debug Info: \n - mType: " .. npc.mType .. "\n - World: " .. Universe:GetWorld().mType
 
     local debugStr = npc:GetDebugString(Classes.Schedule.kDebugTextContextName)
-    if debugStr then
-        desc = desc .. " | Schedule: " .. debugStr
-    else
-        desc = desc .. " | Schedule: Undefined"
-    end
+    desc = desc .. "\n - Schedule: " .. (debugStr or "None")
+    desc = desc .. "\n - NPC: " .. tostring(npc)
 
-    local selection = UI:DisplayModalDialog( title, desc, face, 4, "Make Sim idle", "Exit", "Delete Sim", "Advance Schedule" )
+    local selection = UI:DisplayModalDialog( title, desc, face, 3, "Make Sim idle", "Exit", "Delete Sim" )
 
     if selection == 0 then
         npc:PushInteraction( npc, "Idle",
@@ -68,7 +58,7 @@ function Unlocked_SocialMenu:Action( sim, npc )
         return
 
     elseif selection == 2 then
-        local selection_conf = UI:DisplayModalDialog( "Sim Deletion", "This will delete the Sim. Are you sure you want to continue? \n-\nYou can spawn the Sim again anytime via the Sim Spawn Menu at a bookshelf.", nil, 2, "Yes", "No")
+        local selection_conf = UI:DisplayModalDialog( "Sim Deletion", "This will delete the Sim. Are you sure you want to continue? \n\n\n You can spawn the Sim again anytime via the Sim Spawn Menu at a bookshelf.", nil, 2, "Yes", "No")
         if selection_conf == 0 then
             -- TODO: can be moved to a common function
             local npcX, npcY, npcZ, npcRotY = npc:GetPositionRotation()
@@ -86,7 +76,7 @@ function Unlocked_SocialMenu:Action( sim, npc )
 
             npc:Destroy()
         end
-
+    --[[
     elseif selection == 3 then
         local selection_conf = UI:DisplayModalDialog( "Skip Schedule", "This will advance the Sim's schedule (this will also start the next part of a Quest). Are you sure you want to continue?", nil, 2, "Yes", "No")
         if selection_conf == 0 then
@@ -95,6 +85,7 @@ function Unlocked_SocialMenu:Action( sim, npc )
                 npc.schedule:AdvanceToNextBlock()
             end
         end
+    --]]
     end
 end
 

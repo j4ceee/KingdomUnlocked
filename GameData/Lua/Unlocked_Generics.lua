@@ -141,7 +141,7 @@ function Common:ScaleObject( obj, finalScale, frameCount )
 end
 
 
---- Table containing all mTypes of the NPCs on pirate cove
+--- Table containing all mTypes of the NPCs of pirate cove
 Constants.PirateCoveScripts = {
     "NPC_Neema",
     "NPC_Mira",
@@ -151,126 +151,152 @@ Constants.PirateCoveScripts = {
 
 --- Table containing names & icons of all herdables (by script names / mType)
 Constants.AnimalTable = {
+    -- base class
+    ["HerdableScriptObjectBase"] = {
+        name = nil,
+        icon = nil,
+        collectionKey = nil,
+        class = Classes.HerdableScriptObjectBase,
+        enabled = false
+    },
+
+    -- spawnable animals
     ["Bobaboo"] = {
         name = "Bobaboo",
         icon = "uitexture-map-icon-gonk",
         collectionKey = "reverse_herdable_bobaboo",
+        class = Classes.Bobaboo,
         enabled = true,
     },
     ["Cow"] = {
         name = "Cow",
         icon = "uitexture-figurine-cow",
         collectionKey = "cow_cj_01",
+        class = Classes.Cow,
         enabled = true,
     },
     ["Pig"] = {
         name = "Pig",
         icon = "uitexture-map-icon-animal",
         collectionKey = "pig_cap_01",
+        class = Classes.Pig,
         enabled = true,
     },
     ["PercyPig"] = {
         name = "Sir Percival J. Worthington IV",
         icon = "uitexture-map-icon-animal",
         collectionKey = "pig_animal",
+        class = Classes.PercyPig,
         enabled = true,
     },
     ["Unicorn"] = {
         name = "Unicorn",
         icon = "uitexture-map-icon-leaf",
         collectionKey = "unicorns",
+        class = Classes.Unicorn,
         enabled = true,
     },
     ["Hedgehog"] = {
         name = "Hedgehog",
         icon = nil,
         collectionKey = "leaf_hedgehog_01",
+        class = Classes.Hedgehog,
         enabled = true,
     },
     ["HedgehogLarge"] = {
         name = "Filbert",
         icon = nil,
         collectionKey = "academy_hedgehog_01",
+        class = Classes.HedgehogLarge,
         enabled = true,
     },
     ["Bunny"] = {
         name = "Bunny",
         icon = nil,
         collectionKey = "bunny_leaf_master",
+        class = Classes.Bunny,
         enabled = true,
     },
     ["Spider"] = {
         name = "Spider",
         icon = "uitexture-essence-flair-spider",
         collectionKey = "spiders",
+        class = Classes.Spider,
         enabled = true,
     },
     ["Frog"] = {
         name = "Frog",
         icon = nil,
         collectionKey = "frog",
+        class = Classes.Frog,
         enabled = true,
     },
     ["Crab"] = {
         name = "Crab",
         icon = "uitexture-fish-crab",
         collectionKey = "crabs",
+        class = Classes.Crab,
         enabled = true,
     },
-    --[[
+
     -- missing interactions (so cannot be deleted)
     -- TODO: find a way to make them deletable (e.g. RelationshipBook DEspawn functionality)
 
     ["HerdableTrevor"] = {
         name = "Trevor (Running)",
         icon = "uitexture-npc-head-trevor",
-        collectionKey = 1,
+        collectionKey = nil,
+        class = Classes.HerdableTrevor,
         enabled = false,
     },
     ["ToborLegs"] = {
         name = "Tobor (Legs)",
         icon = "uitexture-npc-head-tobor",
-        collectionKey = 1,
+        collectionKey = nil,
+        class = Classes.ToborLegs,
         enabled = false,
     },
     ["Bear"] = {
         name = "Bear",
         icon = nil,
-        collectionKey = 1,
+        collectionKey = nil,
+        class = Classes.Bear,
         enabled = false,
     },
     ["Panda_Cub"] = {
         name = "Bear Cub",
         icon = nil,
-        collectionKey = 1,
+        collectionKey = nil,
+        class = Classes.Panda_Cub,
         enabled = false,
     },
     ["Raccoon"] = {
         name = "Raccoon",
         icon = nil,
-        collectionKey = 1,
+        collectionKey = "raccoons",
+        class = Classes.Raccoon,
         enabled = false,
     },
     ["Dog"] = {
         name = "Dog",
         icon = nil,
-        collectionKey = 4, -- 2 - 4 is wandering dog (max. 4)
+        collectionKey = nil, -- 2 - 4 is wandering dog (max. 4)
+        class = Classes.Dog,
         enabled = false,
     },
     ["CatAnimal"] = {
         name = "Cat",
         icon = nil,
-        collectionKey = 3, -- 3 is following cat (max. 3)
+        collectionKey = nil, -- 3 is following cat (max. 3)
+        class = Classes.CatAnimal,
         enabled = false,
     },
 
     -- never spawn
-    ["HerdableTrevor2"] = { name = nil, icon = nil, collectionKey = 1, enabled = false },
-    ["HerdableTrevor3"] = { name = nil, icon = nil, collectionKey = 1, enabled = false },
-    ["HerdableTrevor4"] = { name = nil, icon = nil, collectionKey = 1, enabled = false },
-    ["DummyScript"] = { name = nil, icon = nil, collectionKey = 1, enabled = false },
-    ["HerdableScriptObjectBase"] = { name = nil, icon = nil, collectionKey = 1, enabled = false },
-    ]]--
+    ["HerdableTrevor2"] = { name = nil, icon = nil, collectionKey = nil, class = Classes.HerdableTrevor2, enabled = false },
+    ["HerdableTrevor3"] = { name = nil, icon = nil, collectionKey = nil, class = Classes.HerdableTrevor3, enabled = false },
+    ["HerdableTrevor4"] = { name = nil, icon = nil, collectionKey = nil, class = Classes.HerdableTrevor4, enabled = false },
+    ["DummyScript"] = { name = nil, icon = nil, collectionKey = nil, class = nil, enabled = false },
 }
 
 --- Table containing head & body models of all NPCs (by script names / mType)
@@ -529,11 +555,12 @@ Constants.ModelsTable = {
 
 }
 
+
 --- CAS Tables
 
+--- Clothes unlocked by being BFF with Sim
 Constants.CAS_BFF = {
     {
-        code = "",
         unlockMsg = "Buddy & Lyndsay Outfits",
         classString = "unlock",
         collectionString = "buddy_lyndsay_outfits",
@@ -542,21 +569,18 @@ Constants.CAS_BFF = {
     -- TODO: Alexa missing
 
     {
-        code = "",
         unlockMsg = "Barney BFF",
         classString = "unlock",
         collectionString = { "barney_hat", "barney_hat_female"},
     },
 
     {
-        code = "",
         unlockMsg = "Chaz BFF",
         classString = "unlock",
         collectionString = { "chaz_unlock_male", "chaz_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Gino BFF",
         classString = "unlock",
         collectionString = { "chef_body", "chef_body_hat" },
@@ -566,14 +590,12 @@ Constants.CAS_BFF = {
     -- TODO: Dr. F missing
 
     {
-        code = "",
         unlockMsg = "Beverly BFF",
         classString = "unlock",
         collectionString = { "beverly_unlock_male", "beverly_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Elmira BFF",
         classString = "unlock",
         collectionString = { "elmira_body", "elmira_accessories" },
@@ -583,7 +605,6 @@ Constants.CAS_BFF = {
     -- TODO: Goth Boy missing
 
     {
-        code = "",
         unlockMsg = "Ruthie BFF",
         classString = "unlock",
         collectionString = { "ruthie_unlock_male", "ruthie_unlock_female" },
@@ -593,35 +614,30 @@ Constants.CAS_BFF = {
     -- TODO: King Roland missing
 
     {
-        code = "",
         unlockMsg = "Leaf BFF",
         classString = "unlock",
         collectionString = { "leaf_female", "leaf_body_hat" },
     },
 
     {
-        code = "",
         unlockMsg = "Liberty BFF",
         classString = "unlock",
         collectionString = "liberty_unlock_female",
     },
 
     {
-        code = "",
         unlockMsg = "Linda Clothes", -- Linda has no relationship
         classString = "unlock",
         collectionString = "linda_unlock_male",
     },
 
     {
-        code = "",
         unlockMsg = "Daniel BFF",
         classString = "unlock",
         collectionString = { "daniel_unlock_male", "daniel_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Marlon Clothes", -- Marlon has no relationship
         classString = "unlock",
         collectionString = "marlon_body_hat",
@@ -631,105 +647,90 @@ Constants.CAS_BFF = {
     -- TODO: Gabby missing
 
     {
-        code = "",
         unlockMsg = "Petal BFF",
         classString = "unlock",
         collectionString = { "petal_unisex_hats", "petal_body" },
     },
 
     {
-        code = "",
         unlockMsg = "Poppy BFF",
         classString = "unlock",
         collectionString = { "poppy_unlock_male", "poppy_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Butter BFF",
         classString = "unlock",
         collectionString = { "butter_male", "butter_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Proto Makoto BFF",
         classString = "unlock",
         collectionString = "robotgirl_body_hat",
     },
 
     {
-        code = "",
         unlockMsg = "Renée BFF",
         classString = "unlock",
         collectionString = "renee_body",
     },
 
     {
-        code = "",
         unlockMsg = "Rosalyn BFF",
         classString = "unlock",
         collectionString = { "rosalyn_unlock_male", "rosalyn_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Roxie BFF",
         classString = "unlock",
         collectionString = { "roxie_unisex_cow", "roxie_body_hair" },
     },
 
     {
-        code = "",
         unlockMsg = "Rusty BFF",
         classString = "unlock",
         collectionString = { "rusty_male", "rusty_unisex" },
     },
 
     {
-        code = "",
         unlockMsg = "Sapphire BFF",
         classString = "unlock",
         collectionString = { "sapphire_male_raverdm", "sapphire_body", "raver2_body" },
     },
 
     {
-        code = "",
         unlockMsg = "Ginny BFF",
         classString = "unlock",
         collectionString = "ginny_body_hat",
     },
 
     {
-        code = "",
         unlockMsg = "Spencer BFF",
         classString = "unlock",
         collectionString = { "spencer_unlock_male", "spencer_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Summer BFF",
         classString = "unlock",
         collectionString = { "summer_unlock_male", "summer_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Sylvia BFF",
         classString = "unlock",
         collectionString = { "sylvia_unlock_male", "sylvia_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "T.O.B.O.R. BFF",
         classString = "unlock",
         collectionString = "robotboy_body_hat",
     },
 
     {
-        code = "",
         unlockMsg = "Travis BFF",
         classString = "unlock",
         collectionString = { "travis_unlock_male", "travis_unlock_female" },
@@ -738,51 +739,45 @@ Constants.CAS_BFF = {
     -- TODO: Trevor missing
 
     {
-        code = "",
         unlockMsg = "Vic Vector BFF",
         classString = "unlock",
         collectionString = { "vic_unlock_male", "vic_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Vincent Skullfinder BFF",
         classString = "unlock",
         collectionString = { "skullfinder_unlock_male", "skullfinder_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Violet BFF",
         classString = "unlock",
         collectionString = { "violet_unlock_male", "violet_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Yuki BFF",
         classString = "unlock",
         collectionString = { "yuki_unlock_male", "yuki_unlock_female" },
     },
 
     {
-        code = "",
         unlockMsg = "Zack BFF",
         classString = "unlock",
         collectionString = { "zack_body", "zack_female_raverdm" },
     },
 
     {
-        code = "",
         unlockMsg = "Zombie Carl BFF",
         classString = "unlock",
         collectionString = "carl_unlock_female",
     },
 }
 
+--- Clothes found in chests or scrolls
 Constants.CAS_Misc = {
     {
-        code = "",
         unlockMsg = "CAS Initial",
         classString = "unlock",
         collectionString = {
@@ -799,65 +794,132 @@ Constants.CAS_Misc = {
     },
 
     {
-        code = "",
         unlockMsg = "Cowboy Junction Chest",
         classString = "unlock",
         collectionString = "cowboy_junction_cas_chest_unlock",
     },
 
     {
-        code = "",
         unlockMsg = "Leaf Chest",
         classString = "unlock",
         collectionString = "leaf_cas_chest_unlock",
     },
 
     {
-        code = "",
         unlockMsg = "Uncharted Island Chest",
         classString = "unlock",
         collectionString = "gonk_cas_chest_unlock",
     },
 
     {
-        code = "",
         unlockMsg = "Candy Island Chest",
         classString = "unlock",
         collectionString = "candy_cas_chest_unlock",
     },
 
     {
-        code = "",
         unlockMsg = "Rocket Reef Chest",
         classString = "unlock",
         collectionString = "rr_cas_chest_unlock",
     },
 
     {
-        code = "",
         unlockMsg = "Royalty Outfits",
         classString = "unlock",
         collectionString = "royalty_outfits",
     },
 
     {
-        code = "",
         unlockMsg = "King Point Hairs",
         classString = "unlock",
         collectionString = "king_point_hairs",
     },
 
     {
-        code = "",
         unlockMsg = "Sorceress",
         classString = "unlock",
         collectionString = "sorceress_body_hat",
     },
 
     {
-        code = "",
         unlockMsg = "Pants, Jacket, Bag",
         classString = "unlock",
         collectionString = "pantsjacketbag_unisex",
     },
 }
+
+--- Clothes that need to be unlocked with button prompts in the pause menu
+Constants.CAS_Unlocks = {
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_CARIBBEAN_FEMALE",
+        classString = "unlock",
+        collectionString = "unlock_afbodycaribbean",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_FAIRY",
+        classString = "unlock",
+        collectionString = "unlock_afbodyfairy",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_KHAKI",
+        classString = "unlock",
+        collectionString = "unlock_afbodyspy",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_FAIRY_HAIR",
+        classString = "unlock",
+        collectionString = "unlock_afheadhairfairy",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_BUCKET_HAT",
+        classString = "unlock",
+        collectionString = "unlock_afheadhairspy",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_CARIBBEAN_MALE",
+        classString = "unlock",
+        collectionString = "unlock_ambodycaribbean",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_COW_BODY",
+        classString = "unlock",
+        collectionString = "unlock_aubodycow",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_TATTOO",
+        classString = "unlock",
+        collectionString = "unlock_aubodylongpants_tattoo",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_SWORDSMAN",
+        classString = "unlock",
+        collectionString = "unlock_aubodyswordsman",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_TRENCHCOAT",
+        classString = "unlock",
+        collectionString = "unlock_aubodytrenchcoat",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_FEDORA",
+        classString = "unlock",
+        collectionString = "unlock_auheadhatadventurefedora",
+    },
+
+    {
+        unlockMsg = "STRING_UNLOCK_CAS_PRESALE_COW_HEAD",
+        classString = "unlock",
+        collectionString = "unlock_auheadhatcow",
+    },
+}
+

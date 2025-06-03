@@ -3,7 +3,7 @@ Unlocked_I_DJBooth_On._instanceVars = {}
 
 function Unlocked_I_DJBooth_On:Test( sim, obj, autonomous )
 
-    return (not obj.bOn) and (not obj.bIsUsed) and (obj:GetWidgetPowerValue() > 0)
+    return (not obj.bOn) and (not obj.bInUse) and (obj:GetWidgetPowerValue() > 0)
 end
 
 function Unlocked_I_DJBooth_On:Destructor()
@@ -42,7 +42,7 @@ Unlocked_I_DJBooth_Off._instanceVars = {}
 
 function Unlocked_I_DJBooth_Off:Test( sim, obj, autonomous )
 
-    return (obj.bOn) and (not obj.bIsUsed) and (obj:GetWidgetPowerValue() > 0)
+    return (obj.bOn) and (not obj.bInUse) and (obj:GetWidgetPowerValue() > 0)
 end
 
 function Unlocked_I_DJBooth_Off:Destructor()

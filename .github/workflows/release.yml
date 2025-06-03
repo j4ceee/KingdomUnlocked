@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     branches:
-      - master  # or main
+      - none  # TODO: rework release action
   workflow_dispatch:  # allows manual triggering from the UI
 
 jobs:
