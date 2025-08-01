@@ -5,6 +5,7 @@ local kSwfIndex_InteractionMenu = 1
 local kSwfIndex_HUDMenu = 2
 local kSwfIndex_HUDInfoPanel = 3
 
+local enableMapOpen = 1
 
 -- TODO: find better way than huge function override
 function Classes.HUDMenu:LoopInternal()
@@ -150,21 +151,48 @@ function Classes.HUDMenu:LoopInternal()
         self.uiTblRefs[kSwfIndex_HUDInfoPanel].OpenTaskScreen = nil
     elseif( self.uiTblRefs[kSwfIndex_HUDInfoPanel].MapShortcut == "1" ) then
         --- custom code start
-        -- TODO: make flying toggleable (in-game or config file)
-        --  don't fly if the player is in build mode or paint mode
-        if  (self.uiTblRefs[kSwfIndex_HUDMenu].CurrModeIndex == 2 or self.uiTblRefs[kSwfIndex_HUDMenu].CurrModeIndex == 3 ) then
-            self.uiTblRefs[kSwfIndex_HUDInfoPanel].MapShortcut = "0"
-            return
-        end
+        if DebugMenu:GetValue("UnlockedFlying") then
+            --  don't fly if the player is in build mode or paint mode
+            if  (self.uiTblRefs[kSwfIndex_HUDMenu].CurrModeIndex == 2 or self.uiTblRefs[kSwfIndex_HUDMenu].CurrModeIndex == 3 ) then
+                self.uiTblRefs[kSwfIndex_HUDInfoPanel].MapShortcut = "0"
+                return
+            end
 
-        local player = Universe:GetPlayerGameObject()
-        if player ~= nil then
-            Common:FakeFly( player, 2, 120)
-        end
-        self.uiTblRefs[kSwfIndex_HUDInfoPanel].MapShortcut = nil
+            local player = Universe:GetPlayerGameObject()
+            if player ~= nil then
+                Common:FakeFly( player, 2, 120)
+            end
+        else
         --- custom code end
+            --  Does not open the map if the player is in build mode or panit mode
+            if  (self.uiTblRefs[kSwfIndex_HUDMenu].CurrModeIndex == 2 or self.uiTblRefs[kSwfIndex_HUDMenu].CurrModeIndex == 3 ) then
+                self.uiTblRefs[kSwfIndex_HUDInfoPanel].MapShortcut = "0"
+                return
+            end
+            -- check interior
+            local player = Universe:GetPlayerGameObject()
+            if player ~= nil then
+                if player.containingWorld:GetAttribute("InteriorWorld") ~= true then    -- not interior
+                    if enableMapOpen == 1 then
+                        UI:SpawnAndBlock( "UIIslandMap" )
+                    end
+                end
+            end
+        end --- custom code
+
+        self.uiTblRefs[kSwfIndex_HUDInfoPanel].MapShortcut = nil
     elseif( self.uiTblRefs[kSwfIndex_HUDInfoPanel].TaskShortcut == "1" ) then
         UI:SpawnAndBlock( "UITasksList" )
         self.uiTblRefs[kSwfIndex_HUDInfoPanel].TaskShortcut = nil
     end
+end
+
+--- no custom code here, just a function override to support local enableMapOpen
+function Classes.HUDMenu:EnableMapOpenKeypress()
+    enableMapOpen = 1
+end
+
+--- no custom code here, just a function override to support local enableMapOpen
+function Classes.HUDMenu:DisableMapOpenKeypress()
+    enableMapOpen = 0
 end

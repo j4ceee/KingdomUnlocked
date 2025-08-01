@@ -25,21 +25,48 @@ function Unlocked_SocialMenu:Action( sim, npc )
         GameManager:SetAutoSave( false )
     end
 
-    local collection, name, face, home = self:GetNPC(npc.mType)
+    local collection, name, face, home = Common:GetNPC(npc.mType)
 
     local desc = "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).\n"
-    local title = "Debug Menu (" .. "Sim" .. ")"
-    --[[
-    TODO: find a way to get the sim's name
-        - "local name" & "npc:GetAttribute("ShortName")" all show memory addresses instead of names
-        - "local face" does return a valid face icon for some reason
-    --]]
+    --local title = "Debug Menu (" .. "Sim" .. ")"
+    local title = npc:GetAttribute("FullName")
 
-    desc = desc .. "\n\n\n\n\n\n\n\n Debug Info: \n - mType: " .. npc.mType .. "\n - World: " .. Universe:GetWorld().mType
+    desc = desc .. "\n\n\n\n\n\n\n\n Debug Info:"
 
+    desc = desc .. "\n - mType: " .. npc.mType
+    desc = desc .. "\n - World: " .. Universe:GetWorld().mName
     local debugStr = npc:GetDebugString(Classes.Schedule.kDebugTextContextName)
-    desc = desc .. "\n - Schedule: " .. (debugStr or "None")
+    desc = desc .. "\n - Schedule: " .. tostring(debugStr)
     desc = desc .. "\n - NPC: " .. tostring(npc)
+    desc = desc .. "\n - AutonomyEnabled: " .. tostring(npc.autonomyEnabled)
+    desc = desc .. "\n - ControllingJob: " .. tostring(npc.controllingJob)
+    desc = desc .. "\n - ActionQueue Length: " .. tostring(#npc.actionQueue)
+    desc = desc .. "\n - Current Action: " .. tostring(npc.action)
+
+    local interest = npc:GetAttribute("InterestCharacter")[1]
+    desc = desc .. "\n - Interest No: " .. tostring(interest)
+    desc = desc .. "\n - Interest: " .. Constants.InterestNames[interest]
+
+    local socialAvailability = npc.socialAvailability
+    if socialAvailability == 0 then
+        socialAvailability = "No Restrictions"
+    elseif socialAvailability == 1 then
+        socialAvailability = "Disable Autonomy"
+    elseif socialAvailability == 2 then
+        socialAvailability = "Disable User Picking"
+    elseif socialAvailability == 3 then
+        socialAvailability = "Disable All Socials"
+    end
+    desc = desc .. "\n - Social Availability: " .. tostring(socialAvailability)
+
+    desc = desc .. "\n"
+
+    desc = desc .. "\n Autonomous Info:"
+    desc = desc .. "\n - Last action: " .. tostring(npc.autoLastAction)
+    desc = desc .. "\n - Last No of actions: " .. tostring(npc.autoIntNo)
+    desc = desc .. "\n - Current BR: " .. tostring(npc.autoBR)
+
+    desc = desc .. "\n"
 
     local selection = UI:DisplayModalDialog( title, desc, face, 3, "Make Sim idle", "Exit", "Delete Sim" )
 
@@ -86,29 +113,5 @@ function Unlocked_SocialMenu:Action( sim, npc )
             end
         end
     --]]
-    end
-end
-
-function Unlocked_SocialMenu:GetNPC(mType)
-    local refSpecs = Luattrib:GetAllCollections( "character", nil )
-
-    for i, collection in ipairs(refSpecs) do
-        collection = collection[2] -- collection key
-
-        local script = Luattrib:ReadAttribute( "character", collection, "ScriptName" )
-
-        if script == mType then
-            local homeIsland = Luattrib:ReadAttribute( "character", collection, "HomeIsland" )
-            local home = nil
-
-            if( homeIsland ~= nil ) then
-                home = homeIsland[2]
-            end
-
-            local face = Luattrib:ReadAttribute( "character", collection, "FaceIcon" ) --get face icon
-            local name = Luattrib:ReadAttribute( "character", collection, "FullName" ) --get name
-
-            return collection, name, face, home
-        end
     end
 end

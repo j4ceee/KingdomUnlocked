@@ -3,8 +3,7 @@ local Unlocked_ModelMenu = Classes.Job_InteractionBase:Inherit("Unlocked_ModelMe
 Unlocked_ModelMenu._instanceVars = {}
 
 function Unlocked_ModelMenu:Test( sim, npc, autonomous )
-    -- DEBUG ONLY
-    return DebugMenu:GetValue("EnableDebugInteractions") and sim == Universe:GetPlayerGameObject() and sim ~= npc
+    return DebugMenu:GetValue("UnlockedModelSwap") and sim == Universe:GetPlayerGameObject() and sim ~= npc
 end
 
 function Unlocked_ModelMenu:Destructor()

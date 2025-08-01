@@ -91,3 +91,5 @@ function Common:UnlockClothes( unLock, casTables )
         end
     end
 end
+
+-- TODO: integrate more cheats, see DebugMenuItems.lua

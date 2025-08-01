@@ -220,6 +220,25 @@ function Classes.UIRelationshipBook:BuildNPCList()
             script = "Beebee",
             type = "character",
         }
+
+        if self.clothing == "head" then
+            -- add all head models
+            AttribCols[#AttribCols + 1] = {
+                collection = nil,
+                script = "Shirley",
+                type = "character",
+            }
+            AttribCols[#AttribCols + 1] = {
+                collection = nil,
+                script = "Makoto_Human",
+                type = "character",
+            }
+            AttribCols[#AttribCols + 1] = {
+                collection = nil,
+                script = "Princess",
+                type = "character",
+            }
+        end
     end
 
     if self.bSpawnMode then
@@ -271,6 +290,20 @@ function Classes.UIRelationshipBook:BuildNPCInfo()
                     icon = "uitexture-s-bunny",
                 }
             }
+            if self.clothing == "head" then
+                extraTable["Shirley"] = {
+                    name = "Shirley",
+                    icon = "uitexture-NPC_Stylist_1_Def.xml",
+                }
+                extraTable["Makoto_Human"] = {
+                    name = "Makoto (Human)",
+                    icon = "uitexture-npc-head-unknown",
+                }
+                extraTable["Princess"] = {
+                    name = "Princess",
+                    icon = "uitexture-npc-head-unknown",
+                }
+            end
 
             -- add add any clothing items that don't have a collection key
             local home = "extra"
@@ -360,13 +393,7 @@ function Classes.UIRelationshipBook:BuildNPCEntries( island )
 
             if entry then
                 if self.bSpawnMode then
-                    if not isPirateCove then
-                        -- Spawn mode, non-pirate cove entry
-                        self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|"
-                    else
-                        -- Spawn mode, pirate cove entry
-                        self.uiTblRef[entryName] = entryLocked
-                    end
+                    self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|"
                 elseif self.clothing then
                     local script = sim[kScript]
                     local modelName

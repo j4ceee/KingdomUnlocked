@@ -179,28 +179,6 @@ Classes.DanceFloor.interactionSet.TurnOff = {
 --}}}
 
 
---{{{ DanceFloor_Interaction_Dance.lua --------------------------------------------------------------
-function Classes.DanceFloor_Interaction_Dance:Pre_ANIM_LOOPS( sim, obj )
-    if not self.bOn then
-        obj:TurnOn()
-    end
-end
-
-function Classes.DanceFloor_Interaction_Dance:ANIMATE_LOOPS_CONTINUE( sim, obj )
-    --return (obj.bOn)
-    return true -- npcs should keep on dancing when the player turns off the dance floor
-end
-
-function Classes.DanceFloor_Interaction_Dance:Post_ANIM_LOOPS( sim, obj )
-    return -- don't turn off the dance floor
-end
-
-function Classes.DanceFloor_Interaction_Dance:Shutdown( sim, obj )
-    return -- don't turn off the dance floor
-end
---}}}
-
-
 --{{{ DJBooth.lua --------------------------------------------------------------
 -- interaction sets
 Classes.DJBooth.interactionSet.DJ.menu_priority             = 0
@@ -306,37 +284,6 @@ end
 --}}}
 
 
---{{{ DJBooth_Interaction_DJ.lua --------------------------------------------------------------
-function Classes.DJBooth_Interaction_DJ:Test( sim, obj, autonomous )
-
-    if obj.bInUse or obj:GetWidgetPowerValue() == 0 then --- custom code
-        return false
-    end
-
-    if autonomous == true and GameManager:IsDuringTaskTime() then
-        if obj.collectionKey == Luattrib:ConvertStringToUserdataKey("djbooth_00031") then
-            if sim.mType ~= "NPC_DJCandy" and Task:IsTaskComplete("Cutscene_Candy_RoadieSoundCheck") then
-                return false
-            end
-        end
-    end
-
-    return true
-end
-
-function Classes.DJBooth_Interaction_DJ_Uber:Test( sim, obj, autonomous, interactionData )
-    local powerRequirement = interactionData.powerRequirement or 2.0
-
-    if sim == Universe:GetPlayerGameObject() then
-        --- custom code
-        return (not obj.bInUse) and DebugMenu:GetValue("EnableDebugInteractions") and obj:GetWidgetPowerValue() > 0
-    end
-
-    return (not obj.bInUse) and obj:GetWidgetPowerValue() >= powerRequirement --- custom code
-end
---}}}
-
-
 --{{{ Dresser.lua --------------------------------------------------------------
 Classes.Dresser.interactionSet.RifleThroughClothes.menu_priority = 0
 Classes.Dresser.interactionSet.ChangeOutfitM = {
@@ -365,6 +312,20 @@ Classes.FishingBucket.interactionSet.FishingSkip = {
     icon                    = "uitexture-interaction-use",
     menu_priority           = 1,
 }
+Classes.FishingBucket.interactionSet.Fish = {
+    name                    = "Fish",
+    actionKey               = "fish",
+    interactionClassName    = "Unlocked_I_FishingBucket_Fish",
+    icon                    = "uitexture-interaction-use",
+    menu_priority           = 3,
+}
+Classes.FishingBucket.interactionSet.ForceNPCToUse = {
+    name                    = "*Force NPC to Use",
+    actionKey               = "fish",
+    interactionClassName    = "Debug_Interaction_ForceNPCUse",
+    icon                    = "uitexture-interaction-use",
+    menu_priority           = 4,
+}
 --}}}
 
 
@@ -392,13 +353,13 @@ Classes.Tree.interactionSet.Water.menu_priority = 3
 Classes.Tree.interactionSet.Harvest.menu_priority = 1
 
 Classes.Tree.interactionSet.HarvestAll = {
-    name                    = "Harvest All",
+    name                    = "STRING_INTERACTION_TREE_HARVEST", -- Harvest All
     interactionClassName    = "Unlocked_I_Tree_PickAll",
     icon                    = "uitexture-interaction-harvest",
     menu_priority           = 0
 }
 Classes.Tree.interactionSet.WaterAll = {
-    name                    = "Water All",
+    name                    = "STRING_INTERACTION_TREE_WATER", -- Water All
     interactionClassName    = "Unlocked_I_Tree_WaterAll",
     icon                    = "uitexture-interaction-water",
     menu_priority           = 2
@@ -433,31 +394,3 @@ Classes.Boat.interactionSet.ChangeOutfitF = {
 }
 --}}}
 
-
---{{{ Boat_Interaction_ChangeOutfit.lua --------------------------------------------------------------
-function Classes.Boat_Interaction_ChangeOutfit:Test( sim, obj, autonomous )
-    return sim == Universe:GetPlayerGameObject() -- and Unlocks:IsUnlocked("lock", "boat_cas") -- skip unlock check
-end
-
-function Classes.Boat_Interaction_ChangeOutfit:Action()
-    local gender = nil
-    if self.params and self.params.actionKey then
-        if self.params.actionKey == "m" then
-            gender = Constants.Gender.Male
-        elseif self.params.actionKey == "f" then
-            gender = Constants.Gender.Female
-        end
-    end
-
-    -- due to PostSpawn() call in UICASContextPicker:Constructor() we need a different approach
-    -- (no idea why PostSpawn() is called in UICASContextPicker:Constructor())
-    -- instead: set a pendingGender variable in the class & access inside UICASContextPicker:SetParams()
-    Classes.UICASContextPicker.pendingGender = gender
-
-    local reason, context = UI:SpawnAndBlock( "UICASContextPicker" )
-
-    if( reason == 1 ) then
-        GameManager:EnterCAS( "cas_context", context )
-    end
-end
---}}}

@@ -535,18 +535,17 @@ require "GeyserLarge"
 require "GeyserMed"
 require "GeyserSmall"
 
---require "Unlocked__Loader"
---require "UIModalLogDialog"
-
 --- KingdomUnlocked Mod
 
 -- Utilities
 require "Unlocked_Generics"
 -- Overrides
 require "Unlocked_O_Objects"
+require "Unlocked_O_Interactions"
 require "Unlocked_O_Characters"
 require "Unlocked_O_Animals"
 require "Unlocked_O_CAS"
+require "Unlocked_O_Functions"
 -- UI Overrides
 require "Unlocked_O_UI_RelBook"
 require "Unlocked_O_UI_HUDMenu"
@@ -560,6 +559,8 @@ require "Unlocked_I_Tree_PickAll"
 require "Unlocked_I_Tree_WaterAll"
 require "Unlocked_I_Mine_Skip"
 require "Unlocked_I_Fishing_Skip"
+require "Unlocked_I_FishingBucket_Fish"
+require "Unlocked_I_Chat"
 require "Unlocked_I_DanceFl_Toggle"
 require "Unlocked_I_DJBooth_Toggle"
 require "Unlocked_I_Campfire_Toggle"

@@ -5,6 +5,11 @@ function Unlocked_I_Scale_Object:Test( sim, obj, autonomous )
 		return false
 	end
 
+	if not DebugMenu:GetValue("EnableDebugInteractions") then
+		-- only allow this interaction if debug interactions are enabled
+		return false
+	end
+
 	if not ( obj.SetScale or obj.GetScale ) then
 		return false
 	end
@@ -12,6 +17,10 @@ function Unlocked_I_Scale_Object:Test( sim, obj, autonomous )
 	if ( obj.mType == "tree" ) then
 		-- only scale trees that exist
 		if ( obj:GetAttribute("SavedStage") < obj.GrowthStages["TREE_GROWTH_STAGE_SPROUT"] ) then
+			return false
+		end
+		-- lock scaling behind harvesting unlock
+		if ( not Unlocks:IsUnlocked("tools_harvesting", "harvest_low") ) then
 			return false
 		end
 	end

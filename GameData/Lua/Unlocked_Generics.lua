@@ -35,13 +35,55 @@ function Common:FindSimOnCurrentIsland( typeName )
     return nil -- not found on any world
 end
 
+--- Finds the exterior world corresponding to the given interior world
+--- @param interiorWorld any The interior world to find the exterior for
+--- @return any The exterior world if found, nil otherwise
+function Common:GetExteriorWorld(interiorWorld)
+    -- Find the buildable region corresponding to dest world
+    --
+    local regionList = Common:GetAllObjectsOfTypeOnIsland( "buildable_region" )
+
+    for i, region in ipairs( regionList ) do
+        local connectedWorld = region:GetAttribute("ConnectedWorld")
+
+        if connectedWorld and connectedWorld[2] == interiorWorld.collectionKey then
+            return region.containingWorld
+        end
+    end
+
+    return nil -- not found
+end
+
+--- Finds the interior world corresponding to the given buildable region
+--- @param buildableRegion any The buildable region to find the interior for
+--- @return any The interior world if found, nil otherwise
+function Common:GetInteriorWorld(buildableRegion)
+    local connectedWorld = buildableRegion:GetAttribute("ConnectedWorld")
+    local connectedCollectionKey = connectedWorld[2]
+
+    -- using connectedCollectionKey directly in Universe:GetWorld() does not work for some reason
+    -- so we iterate through the Constants.InteriorWorlds to find the matching world
+    for _, worldCollectionKey in ipairs(Constants.InteriorWorlds) do
+        local testWorld = Universe:GetWorld(worldCollectionKey)
+        if testWorld then
+            if testWorld.collectionKey == connectedCollectionKey then
+                return testWorld
+            end
+        end
+    end
+
+    return nil
+end
+
 --- makes an object fly up and stay there for an amount of frames
 --- @param obj any The object to fly (required)
 --- @param upY number The amount of units to fly up (defaults to 2)
 --- @param frameCount number The amount of frames to stay in the air (defaults to 120)
 function Common:FakeFly( obj, upY, frameCount )
     if not ( obj ) then
-        EA:LogMod("FakeFly", "Missing game object to fly")
+        if EA.LogMod then
+            EA:LogMod("FakeFly", "Missing game object to fly")
+        end
         return
     end
 
@@ -140,6 +182,52 @@ function Common:ScaleObject( obj, finalScale, frameCount )
     end
 end
 
+--- Finds an NPC by its mType (script name)
+--- @param mType string The mType (script name) of the NPC to find
+--- @return string|nil The collection key of the NPC if found, nil otherwise
+--- @return string|nil The name of the NPC if found, nil otherwise
+--- @return string|nil The face icon of the NPC if found, nil otherwise
+--- @return string|nil The home island of the NPC if found, nil otherwise
+function Common:GetNPC(mType)
+    local refSpecs = Luattrib:GetAllCollections( "character", nil )
+
+    for i, collection in ipairs(refSpecs) do
+        collection = collection[2] -- collection key
+
+        local script = Luattrib:ReadAttribute( "character", collection, "ScriptName" )
+
+        if script == mType then
+            local homeIsland = Luattrib:ReadAttribute( "character", collection, "HomeIsland" )
+            local home = nil
+
+            if( homeIsland ~= nil ) then
+                home = homeIsland[2]
+            end
+
+            local face = Luattrib:ReadAttribute( "character", collection, "FaceIcon" ) --get face icon
+            local name = Luattrib:ReadAttribute( "character", collection, "FullName" ) --get name
+
+            return collection, name, face, home
+        end
+    end
+end
+
+--- Finds all objects of a table of types on the current island
+--- @param types table A table containing the object types to search for (e.g. {"buildable_region", "fishing_bucket"})
+--- @return table A table containing all found objects of the specified types
+function Common:GetAllObjectsOfTypes( types )
+    local world = Universe:GetWorld()
+    local foundObjects = {}
+
+    for _, typeName in ipairs(types) do
+        local objects = world:CreateArrayOfObjects( typeName )
+        for _, obj in pairs(objects) do
+            table.insert(foundObjects, obj)
+        end
+    end
+
+    return foundObjects
+end
 
 --- Table containing all mTypes of the NPCs of pirate cove
 Constants.PirateCoveScripts = {
@@ -437,10 +525,6 @@ Constants.ModelsTable = {
         body = "afBodyDuchessBeverlyNPC",
         head = "afHeadDuchessBeverlyNPC",
     },
-    ["Beebee"] = { -- is added in "Extra" island
-        body = "afBodyBeeBeeNPC",
-        head = "afHeadBeeBeeNPC",
-    },
 
     --------------------------------------
     -- Renee's Nature Preserve------------
@@ -553,6 +637,26 @@ Constants.ModelsTable = {
         head = "afHeadLibertyNPC",
     },
 
+    --------------------------------------
+    -- EXTRA ---------------------------
+    --------------------------------------
+    -- these NPCs are added in "Extra" island
+    ["Beebee"] = {
+        body = "afBodyBeeBeeNPC",
+        head = "afHeadBeeBeeNPC",
+    },
+    ["Shirley"] = {
+        body = nil,
+        head = "afHeadShirleyNPC",
+    },
+    ["Makoto_Human"] = {
+        body = nil,
+        head = "afHeadMakotoNPC",
+    },
+    ["Princess"] = {
+        body = nil,
+        head = "afHeadPrincessNPC",
+    },
 }
 
 
@@ -923,3 +1027,28 @@ Constants.CAS_Unlocks = {
     },
 }
 
+Constants.InteriorWorlds = {
+    "interior_poppy_01",
+    "interior_leaf_01",
+    "interior_ginnys_01",
+    "interior_ruthie_01",
+    "interior_dorm_01",
+    "interior_generic_02",
+    "interior_rj_ginny",
+    "interior_theodore",
+    "interior_tobor_01",
+    "interior_genericopen",
+    "interior_reward_01",
+    "interior_candy",
+    "interior_barney",
+    "interior_gino_01",
+    "interior_castle",
+    "interior_morcubus_01",
+    "interior_pigman_01",
+    "interior_lab_01",
+    "interior_gothboy_01",
+    "interior_classroom_01",
+    "interior_neema_01",
+    "interior_roxie_01",
+    "interior_renee_01",
+}

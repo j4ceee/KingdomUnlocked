@@ -26,7 +26,12 @@ function Unlocked_CheatMenu:Action( player, obj )
                 GameManager:SetAutoSave( false )
             end
 
-            local selection = UI:DisplayModalDialog( "Cheat Menu", "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).", nil, 4, "Open Clothing Cheats", "Exit", "Give all resources", "Unlock post-game blocks")
+            local desc = "Choose an action. Use your cursor to select or exit with B (button prompts do not match selections).\n"
+            desc = desc .. "\n\n\n\n\n\n\n\n Debug Info:"
+            desc = desc .. "\n - EnableRealFakeAutonomy: " .. tostring(DebugMenu:GetValue("EnableRealFakeAutonomy"))
+            desc = desc .. "\n"
+
+            local selection = UI:DisplayModalDialog( "Cheat Menu", desc, nil, 4, "Open Clothing Cheats", "Exit", "Give all resources", "Unlock post-game blocks")
 
             if selection == 0 then -- clothing cheats
                 --EA:LogMod('Test', 'Opened Clothing Cheat Menu')
