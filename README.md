@@ -11,6 +11,7 @@
 
 _Note: All features listed here exist in the latest mod version. Some features may be missing when using previous mod versions. You can download the latest version [here](https://github.com/j4ceee/KingdomUnlocked/releases/latest)._
 
+
 ### Custom interactions:
 
 - Player character can use any customizations (e.g. clothes, hair, ...) regardless of gender
@@ -20,8 +21,8 @@ _Note: All features listed here exist in the latest mod version. Some features m
 - "**Quick Fishing**": the location of the fish is marked with game objects. Also, you can't fail this mini-game, just press A as soon as bobber is inside the marked area
 - On/Off **Toggling** of some objects (Campfire, DJ Booth, Dance Floor)
 
+
 ### Debug Interactions
-...for Sims from the Wii game:
 
 - Teleport Sims & animals to safe position
 - Tell Sims to move
@@ -29,6 +30,7 @@ _Note: All features listed here exist in the latest mod version. Some features m
 - Delete Sims (Sims can be respawned using the **Spawn Menu**)
 - Force Sims to idle (will interrupt any ongoing interactions & makes the sim idle for a couple of seconds)
 - Force Sims to interact with some objects (for objects that have multiple interactions one will be selected randomly)
+
 
 ### Cheat Menus
 ...when interacting with bookshelves!
@@ -48,16 +50,26 @@ _Note: All features listed here exist in the latest mod version. Some features m
 ### Model Swap Menu:
 
 - give any Sim a makeover! You can mix and match any outfits & heads from existing Sims.
-- also gives you access to the models of the [Shipwreck Cove crew](https://mysims.fandom.com/wiki/Shipwreck_Cove#Island_Residents) and [Beebee](https://mysims.fandom.com/wiki/Beebee)
+- also gives you access to the models of the [Shipwreck Cove crew](https://mysims.fandom.com/wiki/Shipwreck_Cove#Island_Residents), [Beebee](https://mysims.fandom.com/wiki/Beebee), Shirley, Makoto and the Princess
 
 
 ### Spawn Menu:
 
 - spawn any Sim on any island!
+  - spawned Sims behave autonomously; they will walk around, interact with objects and other Sims
+  - autonomous Sims also have access to new custom interactions like fishing, watering trees, entering buildings and chatting with other Sims
+  - the [Shipwreck Cove crew](https://mysims.fandom.com/wiki/Shipwreck_Cove#Island_Residents) can also be spawned!
 - spawn most animals anywhere you want!
 
-> **Limitations:** Sims that are spawned outside their home island will not have a schedule. This means they will not walk around & interact with anything. I'll fix this as soon as I figure out a solution.
 
+### Configuration:
+
+- the mod can be configured using the `Unlocked__Config.lua` file located in the `GameData/Lua` folder of the mod
+- you can change the following settings:
+  - `Enable Debug Interactions`: enables the debug interactions (teleport, push, delete, all cheat menus, etc.)
+  - `Enable Model Swap Menu`: enables the model swap menu for NPCs
+  - `Enable Flying`: enables the flying feature
+  - `Enable Skipping Cutscenes`: enables the skipping of any cutscene
 
 ## Installation
 
