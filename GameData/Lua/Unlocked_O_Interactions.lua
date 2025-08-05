@@ -247,8 +247,14 @@ end
 --{{{ Tree_Interaction_Water.lua --------------------------------------------------------------
 -- allow autonomous sims to water trees
 function Classes.Tree_Interaction_Water:Test( sim, obj, autonomous )
-    if ( sim == Universe:GetPlayerGameObject() or not autonomous ) then --- custom code
+    local player = Universe:GetPlayerGameObject()
+    if ( sim ~= player and not autonomous ) then --- custom code
         -- only allow autonomous sims to execute basic watering interaction
+        return false
+    end
+
+    if ( sim == player and Task:IsTaskComplete("NPC_Linzey_GatherWood")) then
+        -- prevent player from using this interaction after tutorial
         return false
     end
 

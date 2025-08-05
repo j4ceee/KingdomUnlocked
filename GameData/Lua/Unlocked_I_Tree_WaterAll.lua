@@ -20,6 +20,10 @@ function Unlocked_I_Tree_WaterAll:Test( sim, obj, autonomous )
 	if ( not Unlocks:IsUnlocked("tools_harvesting", "wateringcan_low") ) then
 		return false
 	end
+
+	if ( not Task:IsTaskComplete("NPC_Linzey_GatherWood") ) then
+		return false
+	end
 	
     return true
 end
