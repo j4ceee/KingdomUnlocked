@@ -36,8 +36,9 @@ _Note: All features listed here exist in the latest mod version. Some features m
 ...when interacting with bookshelves!
 
 - "**Give all resources**": will give you 999 of every single resource & item
-- "**Unlock post-game blocks**": unlocks all post-game blocks (like the DJ Booth and Dance Floors)
-- **Clothing**
+- "**Toggle Power**": disables power / water requirement for all objects in the world
+- "**Unlock Menu**": unlock all scrolls, rewards and clothing items of any island (including post-game unlocks)
+- **Clothing Menu**
    - "**Unlock bonus clothing**": usually unlocked with button combinations in the pause menu (see [MySims Fandom](https://mysims.fandom.com/wiki/Cheat_Codes_(MySims_Kingdom)))
    - "**Unlock all clothing**": unlocks all clothing items (_WIP, some items may not be included yet_)
    - "**Lock all clothing**": locks all clothing items (_WIP, some items may not be included yet_)

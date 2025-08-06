@@ -31,6 +31,10 @@ function Unlocked_SocialMenu:Action( sim, npc )
     --local title = "Debug Menu (" .. "Sim" .. ")"
     local title = npc:GetAttribute("FullName")
 
+    if EA.LogMod then
+        EA:LogMod("KingdomUnlocked", "Opened Social Menu for NPC: " .. tostring(npc) .. " (" .. npc.mType .. ")")
+    end
+
     desc = desc .. "\n\n\n\n\n\n\n\n Debug Info:"
 
     desc = desc .. "\n - mType: " .. npc.mType

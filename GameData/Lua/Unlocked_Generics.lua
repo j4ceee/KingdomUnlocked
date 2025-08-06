@@ -1027,6 +1027,7 @@ Constants.CAS_Unlocks = {
     },
 }
 
+
 Constants.InteriorWorlds = {
     "interior_poppy_01",
     "interior_leaf_01",
@@ -1051,4 +1052,33 @@ Constants.InteriorWorlds = {
     "interior_neema_01",
     "interior_roxie_01",
     "interior_renee_01",
+}
+
+Constants.AllTaskRewards = {
+    ["academy_island"] = "academy_task_rewards",
+    ["animal_island"] = "animal_task_rewards",
+    ["candy_island"] = "candy_task_rewards",
+    ["castle_island"] = "capital_task_reward",
+    ["cowboy_junction_island"] = "cj_task_rewards",
+    ["cutesburgh_island"] = "cutesburg_task_rewards",
+    ["gonk_island"] = "gonk_task_rewards",
+    ["tree_island"] = "leaf_task_rewards",
+    ["rocket_reef_island"] = "rocketreef_task_rewards",
+    ["spookane_island"] = "spookane_task_rewards",
+    ["trevor_island"] = "trevor_island_task_rewards",
+    ["day2"] = "day2socialize_task_rewards",
+}
+
+Constants.AllScrollRewards = {
+    ["academy_island"] = "academy_scrolls",
+    ["animal_island"] = "animal_scrolls",
+    ["candy_island"] = "candy_scrolls",
+    ["castle_island"] = "capital_scrolls",
+    ["cowboy_junction_island"] = "cowboy_junction_scrolls",
+    ["cutesburgh_island"] = "cutopia_scrolls",
+    ["gonk_island"] = "gonk_scrolls",
+    ["tree_island"] = "leaf_scrolls",
+    ["rocket_reef_island"] = "rocket_reef_scrolls",
+    ["spookane_island"] = "spookane_scrolls",
+    ["trevor_island"] = "trevor_scrolls",
 }

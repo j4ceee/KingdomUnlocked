@@ -1,12 +1,19 @@
 local Unlocked_I_Chat = Classes.Job_InteractionBase:Inherit("Unlocked_I_Chat")
 
 function Unlocked_I_Chat:Test( sim1, sim2, autonomous )
+	--sim1 is the sim that is performing the interaction
+	--sim2 is the sim that is being interacted with
+
 	if (sim1 == Universe:GetPlayerGameObject() or sim2 == Universe:GetPlayerGameObject()) then
 		return false -- don't allow player sim to be involved in this interaction
 	end
 
 	if ( sim1 == sim2 ) then
 		return false
+	end
+
+	if Classes.Social_Socialize:Test( sim1, sim2, autonomous ) then
+		return false -- only allow if socialize is not available (prevent autonomous sims from interrupting socialize)
 	end
 
 	if ( Class:InheritsFrom(sim2, "NPC_Protomakoto") ) then

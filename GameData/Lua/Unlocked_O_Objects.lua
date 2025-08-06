@@ -28,26 +28,33 @@ Classes.Bed.interactionSet.ForceNPCToUse.icon = "uitexture-interaction-sleep"
 Classes.Bookshelf.interactionSet.Browse.menu_priority = 0
 
 -- add cheat menu access
+Classes.Bookshelf.interactionSet.OpenSpawnMenu = {
+    name                    = "*Open Spawn Menu",
+    interactionClassName    = "Unlocked_CheatMenu",
+    actionKey               = "db_spawn",
+    icon                    = "uitexture-hud-relationships-on",
+    menu_priority           = 1,
+}
 Classes.Bookshelf.interactionSet.OpenCheatsGeneral = {
     name                    = "*Open General Cheats",
     interactionClassName    = "Unlocked_CheatMenu",
     actionKey               = "db_menu",
     icon                    = "uitexture-interaction-inspect",
-    menu_priority           = 1,
+    menu_priority           = 2,
+}
+Classes.Bookshelf.interactionSet.OpenCheatsClothing = {
+    name                    = "*Open Clothing Cheats",
+    interactionClassName    = "Unlocked_CheatMenu",
+    actionKey               = "db_clothing",
+    icon                    = "uitexture-interaction-change",
+    menu_priority           = 3,
 }
 Classes.Bookshelf.interactionSet.OpenCheatsIslands = {
     name                    = "*Open Island Cheats",
     interactionClassName    = "Unlocked_CheatMenu",
     actionKey               = "db_menu_islands",
     icon                    = "uitexture-interaction-leave",
-    menu_priority           = 2,
-}
-Classes.Bookshelf.interactionSet.OpenSpawnMenu = {
-    name                    = "*Open Spawn Menu",
-    interactionClassName    = "Unlocked_CheatMenu",
-    actionKey               = "db_spawn",
-    icon                    = "uitexture-hud-relationships-on",
-    menu_priority           = 3,
+    menu_priority           = 4,
 }
 --}}}
 
@@ -219,6 +226,15 @@ Classes.DJBooth.SoundLoops =
     "djbooth_trackf",
     "stereo_music", --- new
 }
+
+function Classes.DJBooth:PowerChangedCallback( powerValue )
+    if powerValue == 0 then
+        self:TurnOff(false)
+        self:SetMaterialIndex(0, "WidgetDJbooth_lightsOff", 0)
+    else
+        self:SetMaterialIndex(1, "WidgetDJbooth_lightsOn", 0)
+    end
+end
 
 function Classes.DJBooth:TurnOn( trackIndex, calledBySim )
     --- custom code start

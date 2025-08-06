@@ -548,6 +548,7 @@ require "Unlocked_O_CAS"
 require "Unlocked_O_Functions"
 -- UI Overrides
 require "Unlocked_O_UI_RelBook"
+require "Unlocked_O_UI_WorldMap"
 require "Unlocked_O_UI_HUDMenu"
 -- Menus
 require "Unlocked_M_CheatMenu"

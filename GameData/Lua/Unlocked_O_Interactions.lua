@@ -9,8 +9,7 @@ function Classes.DanceFloor_Interaction_Dance:Pre_ANIM_LOOPS( sim, obj )
 end
 
 function Classes.DanceFloor_Interaction_Dance:ANIMATE_LOOPS_CONTINUE( sim, obj )
-    --return (obj.bOn)
-    return true -- npcs should keep on dancing when the player turns off the dance floor
+    return (obj.bOn)
 end
 
 function Classes.DanceFloor_Interaction_Dance:Post_ANIM_LOOPS( sim, obj )

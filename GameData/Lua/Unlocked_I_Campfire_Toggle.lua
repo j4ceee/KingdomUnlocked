@@ -2,8 +2,15 @@ local Unlocked_I_Campfire_On = Classes.Job_InteractionState:Inherit("Unlocked_I_
 Unlocked_I_Campfire_On._instanceVars = {}
 
 function Unlocked_I_Campfire_On:Test( sim, obj, autonomous )
+    if obj.bOn then
+        return false
+    end
 
-    return (not obj.bOn) and (not obj.bInUse)
+    if obj.bInUse then
+        return false
+    end
+
+    return true
 end
 
 function Unlocked_I_Campfire_On:Destructor()
@@ -25,8 +32,19 @@ local Unlocked_I_Campfire_Off = Classes.Job_InteractionState:Inherit("Unlocked_I
 Unlocked_I_Campfire_Off._instanceVars = {}
 
 function Unlocked_I_Campfire_Off:Test( sim, obj, autonomous )
+    if not obj.bOn then
+        return false
+    end
 
-    return (obj.bOn) and (not obj.bInUse)
+    if obj.bInUse then
+        return false
+    end
+
+    if sim ~= Universe:GetPlayerGameObject() then
+        return false
+    end
+
+    return true
 end
 
 function Unlocked_I_Campfire_Off:Destructor()

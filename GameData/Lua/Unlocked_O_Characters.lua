@@ -443,6 +443,29 @@ end
 
 
 --{{{ Debug_Interaction_ForceNPCUse.lua --------------------------------------------------------------
+function Classes.Debug_Interaction_ForceNPCUse:Test( sim, obj, autonomous ) --- custom code
+    -- DEBUG ONLY
+    if not DebugMenu:GetValue("EnableDebugInteractions") or sim ~= Universe:GetPlayerGameObject() then
+        return false
+    end
+
+    local anyAvailable = false
+    for key, set in pairs(obj.interactionSet) do
+        if set.interactionClassName ~= "Debug_Interaction_ForceNPCUse" then -- prevent recursion
+            if InteractionUtils:InteractionTest( sim, obj, key, false ) then
+                anyAvailable = true
+                break
+            end
+        end
+    end
+
+    if not anyAvailable then
+        return false
+    end
+
+    return true
+end
+
 function Classes.Debug_Interaction_ForceNPCUse:Action( player, obj )
 
     if self.params and self.params.actionKey then
