@@ -5,7 +5,7 @@
   KingdomUnlocked
 </h1>
 <p align="center">
-  A mod for MySims Kingdom on the Nintendo Switch, enabling debug interactions & cheat menus
+  A mod for MySims Kingdom on PC & Nintendo Switch, adding cheat menus & many quality of life features
 </p>
 <br>
 
