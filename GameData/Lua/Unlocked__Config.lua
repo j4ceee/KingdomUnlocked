@@ -65,4 +65,4 @@ local function InitializeUnlockedMod()
 end
 
 -- Register the initialization function to run after the system is loaded
-System:RegisterSystemPostLoadInit(InitializeUnlockedMod)
+System:RegisterGeneralPostLoadInit(InitializeUnlockedMod)

@@ -151,8 +151,18 @@ function Unlocked_CheatMenu:UnlockEverythingForIsland(islandString)
         Unlocks:Unlock( "unlock", "plantables" )
         Unlocks:Unlock( "unlock", "social_essences" )
     else
-        local allTaskRewards = Luattrib:GetAllCollections( "reward", Constants.AllTaskRewards[islandString] )
-        local allScrolls = Luattrib:GetAllCollections( "reward", Constants.AllScrollRewards[islandString] )
+        local allTaskRewards = {}
+        local allScrolls = {}
+
+        local island = Common:GetIslandByCollectionString(islandString)
+
+        if not island then
+            EA:LogE("Unlocked", "UnlockEverythingForIsland() - Invalid islandString: " .. tostring(islandString))
+            return
+        end
+
+        allTaskRewards = Luattrib:GetAllCollections( "reward", island.taskRewards )
+        allScrolls = Luattrib:GetAllCollections( "reward", island.scrollRewards )
         local everything = { allTaskRewards, allScrolls }
 
         for i, rTable in ipairs( everything ) do

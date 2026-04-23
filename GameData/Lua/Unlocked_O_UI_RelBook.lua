@@ -79,42 +79,53 @@ function Classes.UIRelationshipBook:LoopInternal()
             local currentWorld = Universe:GetWorld()
             local playerSim = Universe:GetPlayerGameObject()
             local x, y, z, rotY = playerSim:GetPositionRotation()
-             x, z = Common:GetRelativePosition( 0, -3, x, z, rotY )
+            y = y + 2.0 -- spawn above the player
 
-            -- Get the entry from AttribCols
+            -- get the entry from AttribCols
             local entry = AttribCols[simId]
             if entry then
                 local spawnJob = Classes.Job_SpawnObject:Spawn(
                         entry.type,           -- class (character or herdables)
                         entry.collection,     -- collection
-                        currentWorld,  -- parent world
-                        x, y+2.0, z,         -- position
+                        currentWorld,         -- parent world
+                        x, y, z,          -- position
                         rotY,
                         nil
                 )
 
+                local initFunc = function(obj)
+                    if EA.LogMod then
+                        EA:LogMod("Unlocked", "Spawning " .. obj.mType .. " at " .. x .. ", " .. y .. ", " .. z)
+                    end
+                    obj:SnapToSafePosition(true)
+                    local xS, yS, zS, rotYs = obj:GetPositionRotation()
+
+                    local override =
+                    {
+                        LifetimeInSeconds = 3.0,
+                        EffectName = "sim-magicTransport-poof-effects",
+                        EffectPriority = FXPriority.High,
+                    }
+
+                    local vfxY
+                    if entry.type == "character" then
+                        vfxY = yS + 1.0
+                    else
+                        vfxY = yS
+                    end
+                    local spawnFx = Classes.Job_SpawnObject:Spawn( "effect", "default", currentWorld, xS, vfxY, zS, rotYs, override )
+                    spawnFx:Execute(obj)
+                end
+
+                spawnJob:SetInitFunction(initFunc)
                 spawnJob:Execute(currentWorld)
             end
 
             -- characters the player will likely want to spawn only once (exit UI after spawning)
             -- animals can be spawned multiple times
-            local vfxY
             if entry.type == "character" then
                 self.bExitLoop = true
-                vfxY = y + 1.0
-            else
-                vfxY = y
             end
-            -- TODO: can be moved to a common function
-            local override =
-            {
-                LifetimeInSeconds = 3.0,
-                EffectName = "sim-magicTransport-poof-effects",
-                EffectPriority = FXPriority.High,
-            }
-
-            local spawnJob = Classes.Job_SpawnObject:Spawn( "effect", "default", currentWorld, x, vfxY, z, rotY, override )
-            spawnJob:Execute(self)
 
         elseif self.clothing then
             if self.clothing == "head" then
@@ -363,12 +374,17 @@ function Classes.UIRelationshipBook:BuildNPCEntries( island )
     local player = Universe:GetPlayerGameObject()
 
     --- set the island name
-    if Common:str_starts( tostring(island), "animals" ) then
+    local spawnReqsFulfilled = true
+    if Common:str_starts( tostring(island), "animals" ) then -- if the island is one of the animal pages, set the name to "Animals 1", ...
         self.uiTblRef.IslandName = "Animals " .. tonumber(string.sub( tostring(island), 8 ))+1
-    elseif island == "extra" then
+    elseif island == "extra" then -- if the island is the extra page, set the name to "Extra"
         self.uiTblRef.IslandName = "Extra"
-    else
+    else -- otherwise, look up the island name as normal
         self.uiTblRef.IslandName = Luattrib:ReadAttribute( "island", island, "UIIslandName" ) or "NO NAME"
+        local islandTable = Common:GetIslandByCollectionKey(island)
+        --EA:LogMod("Unlocked", "Building NPC entries for island: ")
+        --Common:DebugPrintTable(islandTable)
+        spawnReqsFulfilled = (islandTable and Common:IslandIsComplete(islandTable.collection)) or Common:GetCurrentIsland().collection == islandTable.collection
     end
 
     if( self.NPCInfo[island] ~= nil ) then
@@ -393,7 +409,12 @@ function Classes.UIRelationshipBook:BuildNPCEntries( island )
 
             if entry then
                 if self.bSpawnMode then
-                    self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|"
+                    if spawnReqsFulfilled or isPirateCove then
+                        -- if the island is complete or the sim is a pirate cove sim, we can spawn it
+                        self.uiTblRef[entryName] = sim[kId] .. "|" .. sim[kName] .. "|" .. sim[kTexture] .. "|"
+                    else
+                        self.uiTblRef[entryName] = entryLocked
+                    end
                 elseif self.clothing then
                     local script = sim[kScript]
                     local modelName

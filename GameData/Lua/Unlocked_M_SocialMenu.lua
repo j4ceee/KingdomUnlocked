@@ -10,14 +10,6 @@ end
 function Unlocked_SocialMenu:Destructor()
 end
 
-local TuningSpec =
-{
-    duration =  {   
-                    minLoops    = 1,
-                    maxLoops    = 1,
-                },
-}
-
 function Unlocked_SocialMenu:Action( sim, npc )
 
     -- Disable autosave
@@ -38,7 +30,8 @@ function Unlocked_SocialMenu:Action( sim, npc )
     desc = desc .. "\n\n\n\n\n\n\n\n Debug Info:"
 
     desc = desc .. "\n - mType: " .. npc.mType
-    desc = desc .. "\n - World: " .. Universe:GetWorld().mName
+    desc = desc .. "\n - World: " .. npc.containingWorld.mName
+    desc = desc .. "\n - Object: " .. npc.containingObject.mName
     local debugStr = npc:GetDebugString(Classes.Schedule.kDebugTextContextName)
     desc = desc .. "\n - Schedule: " .. tostring(debugStr)
     desc = desc .. "\n - NPC: " .. tostring(npc)
@@ -46,6 +39,7 @@ function Unlocked_SocialMenu:Action( sim, npc )
     desc = desc .. "\n - ControllingJob: " .. tostring(npc.controllingJob)
     desc = desc .. "\n - ActionQueue Length: " .. tostring(#npc.actionQueue)
     desc = desc .. "\n - Current Action: " .. tostring(npc.action)
+    desc = desc .. "\n - Control Request: " .. tostring(npc.requestControlJob)
 
     local interest = npc:GetAttribute("InterestCharacter")[1]
     desc = desc .. "\n - Interest No: " .. tostring(interest)

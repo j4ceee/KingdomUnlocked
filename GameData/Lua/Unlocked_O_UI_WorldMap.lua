@@ -1,27 +1,10 @@
 
 --- World Map Override -----------------------------------------------------------------
 
-local islandInfo =
-{
-    { texture = "uitexture-map-icon-cowboy",        collection = "cowboy_junction_island" },    --0
-    { texture = "uitexture-map-icon-rocket",        collection = "rocket_reef_island" },        --1
-    { texture = "uitexture-map-icon-spookane",      collection = "spookane_island" },           --2
-    { texture = "uitexture-map-icon-cutesburg",     collection = "cutesburgh_island" },         --3
-    { texture = "",                                 collection = "candy_island" },              --4
-    { texture = "uitexture-map-icon-capitol",       collection = "castle_island" },             --5
-    { texture = "",                                 collection = "tree_island" },               --6
-    { texture = "",                                 collection = "gonk_island" },               --7
-    { texture = "",                                 collection = "trevor_island" },             --8
-    { texture = "",                                 collection = "reward_island" },             --9
-    { texture = "",                                 collection = "animal_island" },             --10
-    { texture = "",                                 collection = "academy_island" },            --11
-    --{ texture = "", collection = "pirate_island" }, --12
-}
-
 Classes.UIWorldMap._instanceVars.mode = "default"
 
 function Classes.UIWorldMap:BuildRefTable()
-    for i, v in ipairs( islandInfo ) do
+    for i, v in ipairs( Constants.AllIslands ) do
         local name = Luattrib:ReadAttribute( "island", v.collection, "UIIslandName" )
         self.uiTblRef[ "IslandName" .. (i-1) ] = name
         self.uiTblRef[ "IslandIconTexture" .. (i-1) ] = v.texture
@@ -53,7 +36,7 @@ function Classes.UIWorldMap:SetParams( unlockIslands, mode )
         end
 
         for num, unlockIsland in ipairs( unlockIslands ) do
-            for i, v in ipairs( islandInfo ) do
+            for i, v in ipairs( Constants.AllIslands ) do
                 if ( unlockIsland == v.collection ) then
                     self.UnlockingMode = 1
                     self.uiTblRef[ "UnlockIsland" .. ( num - 1 ) ] = i - 1
@@ -69,7 +52,7 @@ function Classes.UIWorldMap:SetParams( unlockIslands, mode )
     if ( self.mode ~= "unlockScrolls" ) then
         local island = Luattrib:ConvertStringToUserdataKey( tostring( Universe:GetWorld() ) )
 
-        for i, v in ipairs( islandInfo ) do
+        for i, v in ipairs( Constants.AllIslands ) do
             local myIsland = Universe:GetIslandStartingWorld( "island" , v.collection )
             if( island ==  myIsland[2] ) then
                 self.uiTblRef.CurrentIsland = i-1
@@ -78,7 +61,7 @@ function Classes.UIWorldMap:SetParams( unlockIslands, mode )
         end
     end
 
-    self.uiTblRef.NumIslands = #islandInfo
+    self.uiTblRef.NumIslands = #Constants.AllIslands
 end
 
 function Classes.UIWorldMap:LoopInternal()
@@ -88,7 +71,7 @@ function Classes.UIWorldMap:LoopInternal()
         --[[
         if( self.UnlockingMode == 1 ) then
             for i=0, self.uiTblRef.UnlockCount - 1 do
-                local islandName = Luattrib:ReadAttribute( "island", islandInfo[ self.uiTblRef[ "UnlockIsland" .. i ] + 1 ].collection, "UIIslandName" )
+                local islandName = Luattrib:ReadAttribute( "island", Constants.AllIslands[ self.uiTblRef[ "UnlockIsland" .. i ] + 1 ].collection, "UIIslandName" )
                 UIEngineUtils:SetSub( "ISLANDNAME", islandName )
                 UI:DisplayModalPopUpDialog( "STRING_UI_WORLDMAP_ISLANDUNLOCKTITLE",
                                             "STRING_UI_WORLDMAP_ISLANDUNLOCKMESSAGEFRONT",
@@ -108,14 +91,14 @@ function Classes.UIWorldMap:LoopInternal()
         local bAllow = true
         if ( DebugMenu:GetValue("DemoE3") == true ) then
             local id = tonumber(self.uiTblRef.Hit)
-            local islandName = islandInfo[id+1].collection
+            local islandName = Constants.AllIslands[id+1].collection
 
             if ( islandName ~= "cowboy_junction_island" ) and ( islandName ~= "rocket_reef_island" ) and ( islandName ~= "castle_island" ) then
                 bAllow = false
             end -- check islands
         elseif ( DebugMenu:GetValue("DemoPreview") == true ) then
             local id = tonumber(self.uiTblRef.Hit)
-            local islandName = islandInfo[id+1].collection
+            local islandName = Constants.AllIslands[id+1].collection
 
             if ( islandName ~= "cowboy_junction_island" ) and ( islandName ~= "animal_island" ) and ( islandName ~= "castle_island" ) then
                 bAllow = false
@@ -127,7 +110,7 @@ function Classes.UIWorldMap:LoopInternal()
             -- END DEMO BUILD HACK
             ----------------------
             if ( self.mode == "unlockScrolls" ) then
-                local stringName = islandInfo[tonumber(self.uiTblRef.Hit)+1].collection
+                local stringName = Constants.AllIslands[tonumber(self.uiTblRef.Hit)+1].collection
                 local name = Luattrib:ReadAttribute( "island", stringName, "UIIslandName" )
 
                 local message = "Are you want to unlock everything for this island?\nThis will unlock all scrolls, rewards and clothing for this island. This cannot be undone.\n"

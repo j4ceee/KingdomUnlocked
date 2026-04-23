@@ -214,19 +214,125 @@ end
 
 --- Finds all objects of a table of types on the current island
 --- @param types table A table containing the object types to search for (e.g. {"buildable_region", "fishing_bucket"})
+--- @param world userdata The world to search in (optional, defaults to the current world)
 --- @return table A table containing all found objects of the specified types
-function Common:GetAllObjectsOfTypes( types )
-    local world = Universe:GetWorld()
+function Common:GetAllObjectsOfTypes( types, world )
+    world = world or Universe:GetWorld()
+    EA:Assert(world~=nil, "Common:GetAllObjectsOfTypes: world is nil")
+
     local foundObjects = {}
 
     for _, typeName in ipairs(types) do
         local objects = world:CreateArrayOfObjects( typeName )
+        EA:Assert(objects~=nil, "Common:GetAllObjectsOfTypes: objects is nil for type " .. typeName)
         for _, obj in pairs(objects) do
             table.insert(foundObjects, obj)
         end
     end
 
     return foundObjects
+end
+
+--- Get the island by its collection string
+--- @param collection string The collection string of the island to find
+--- @return table|nil The island table if found, nil otherwise
+function Common:GetIslandByCollectionString(collection)
+    for index, island in ipairs(Constants.AllIslands) do
+        if island.collection == collection then
+            return island
+        end
+    end
+    return nil -- not found
+end
+
+--- Get the island by its collection key
+--- @param collectionKey userdata The collection key of the island to find
+--- @return table|nil The island table if found, nil otherwise
+function Common:GetIslandByCollectionKey( collectionKey )
+    for index, island in ipairs(Constants.AllIslands) do
+        local convertedCollection = Luattrib:ConvertStringToUserdataKey( island.collection )
+        if convertedCollection == collectionKey then
+            return island
+        end
+    end
+    return nil -- not found
+end
+
+--- Check if the main quest of the island is complete
+--- @param collection string The collection string of the island to check
+--- @return boolean True if the island's main quest is complete, false otherwise
+function Common:IslandIsComplete(collection)
+    local island = Common:GetIslandByCollectionString(collection)
+    if not island then
+        return false -- island not found
+    end
+
+    local lastTask = island.lastTask
+    if lastTask and lastTask ~= "" then
+        if Task:IsTaskRevealed(lastTask) and Task:IsTaskComplete(lastTask) then
+            return true -- last task is revealed and complete
+        end
+    else
+        return true -- no last task - default to complete
+    end
+
+    return false -- no last task or task is not complete
+end
+
+--- Get the current island
+--- @return table|nil The current island table if found, nil otherwise
+function Common:GetCurrentIsland()
+    local worlds = Universe:GetIslandWorlds()
+    local world = worlds[1].refSpec
+
+    for _, island in ipairs(Constants.AllIslands) do
+        if Luattrib:ConvertStringToUserdataKey(island.startingWorld) == world[2] then
+            return island
+        end
+    end
+    return nil
+end
+
+--- Print a table in a readable format, skipping specified keys
+--- @param table table The table to print
+--- @param keysToSkip table A table of keys to skip when printing (optional)
+--- @param indent number The current indentation level (used for recursive calls, defaults to 0)
+function Common:DebugPrintTable(table, keysToSkip, indent)
+    if not table then
+        print("Table is nil")
+        return
+    end
+
+    if type(table) ~= "table" then
+        print("Value is not a table: " .. tostring(table))
+        return
+    end
+
+    keysToSkip = keysToSkip or {}
+    local skipSet = {}
+    for _, key in ipairs(keysToSkip) do
+        skipSet[key] = true
+    end
+
+    indent = indent or 0
+    local indentStr = string.rep("  ", indent)
+
+    local isEmpty = true
+    for key, value in pairs(table) do
+        if not skipSet[key] then
+            isEmpty = false
+            if type(value) == "table" then
+                print(indentStr .. tostring(key) .. ":")
+                Common:DebugPrintTable(value, keysToSkip, indent + 1)
+            else
+                print(indentStr .. tostring(key) .. ": " .. tostring(value))
+            end
+        end
+    end
+
+    if isEmpty then
+        print(indentStr .. "(empty table)")
+    end
 end
 
 --- Table containing all mTypes of the NPCs of pirate cove
@@ -1027,7 +1133,7 @@ Constants.CAS_Unlocks = {
     },
 }
 
-
+--- Table containing all interior worlds
 Constants.InteriorWorlds = {
     "interior_poppy_01",
     "interior_leaf_01",
@@ -1054,31 +1160,147 @@ Constants.InteriorWorlds = {
     "interior_renee_01",
 }
 
-Constants.AllTaskRewards = {
-    ["academy_island"] = "academy_task_rewards",
-    ["animal_island"] = "animal_task_rewards",
-    ["candy_island"] = "candy_task_rewards",
-    ["castle_island"] = "capital_task_reward",
-    ["cowboy_junction_island"] = "cj_task_rewards",
-    ["cutesburgh_island"] = "cutesburg_task_rewards",
-    ["gonk_island"] = "gonk_task_rewards",
-    ["tree_island"] = "leaf_task_rewards",
-    ["rocket_reef_island"] = "rocketreef_task_rewards",
-    ["spookane_island"] = "spookane_task_rewards",
-    ["trevor_island"] = "trevor_island_task_rewards",
-    ["day2"] = "day2socialize_task_rewards",
+--- Table containing all islands
+--- Each island has a collection, starting world, texture, task rewards, scroll rewards, and last task.
+Constants.AllIslands = {
+    { -- 0 (world map index)
+        collection = "cowboy_junction_island",
+        startingWorld = "cowboy_junction_01",
+        texture = "uitexture-map-icon-cowboy",
+        taskRewards = "cj_task_rewards",
+        scrollRewards = "cowboy_junction_scrolls",
+        lastTask = "Cutscene_CJ_Celebration",
+    },
+    { -- 1
+        collection = "rocket_reef_island",
+        startingWorld = "rocket_reef_01",
+        texture = "uitexture-map-icon-rocket",
+        taskRewards = "rocketreef_task_rewards",
+        scrollRewards = "rocket_reef_scrolls",
+        lastTask = "Cutscene_RR_RocketLaunch",
+    },
+    { -- 2
+        collection = "spookane_island",
+        startingWorld = "spookane_01",
+        texture = "uitexture-map-icon-spookane",
+        taskRewards = "spookane_task_rewards",
+        scrollRewards = "spookane_scrolls",
+        lastTask = "Cutscene_SPOOKANE_End",
+    },
+    { -- 3
+        collection = "cutesburgh_island",
+        startingWorld = "cutesburgh_01",
+        texture = "uitexture-map-icon-cutesburg",
+        taskRewards = "cutesburg_task_rewards",
+        scrollRewards = "cutopia_scrolls",
+        lastTask = "Cutscene_Cute_TheDutchessApproves",
+    },
+    { -- 4
+        collection = "candy_island",
+        startingWorld = "candy_01",
+        texture = "",
+        taskRewards = "candy_task_rewards",
+        scrollRewards = "candy_scrolls",
+        lastTask = "Cutscene_Candy_Performance",
+    },
+    { -- 5
+        collection = "castle_island",
+        startingWorld = "capital_01",
+        texture = "uitexture-map-icon-capitol",
+        taskRewards = "capital_task_reward",
+        scrollRewards = "capital_scrolls",
+        lastTask = "Cutscene_CAP_OffToAdventure",
+    },
+    { -- 6
+        collection = "tree_island",
+        startingWorld = "tree_01",
+        texture = "",
+        taskRewards = "leaf_task_rewards",
+        scrollRewards = "leaf_scrolls",
+        lastTask = "Cutscene_Leaf_Concert",
+    },
+    { -- 7
+        collection = "gonk_island",
+        startingWorld = "gonk_01",
+        texture = "",
+        taskRewards = "gonk_task_rewards",
+        scrollRewards = "gonk_scrolls",
+        lastTask = "Cutscene_Gonk_BobabooFree",
+    },
+    { -- 8
+        collection = "trevor_island",
+        startingWorld = "trevor_01",
+        texture = "",
+        taskRewards = "trevor_island_task_rewards",
+        scrollRewards = "trevor_scrolls",
+        lastTask = "TR_Act4Post",
+    },
+    { -- 9
+        collection = "reward_island",
+        startingWorld = "reward_01",
+        texture = "",
+        taskRewards = "",
+        scrollRewards = "",
+        lastTask = "",
+    },
+    { -- 10
+        collection = "animal_island",
+        startingWorld = "animal_01",
+        texture = "",
+        taskRewards = "animal_task_rewards",
+        scrollRewards = "animal_scrolls",
+        lastTask = "NPC_Renee_EndTour",
+    },
+    { -- 11
+        collection = "academy_island",
+        startingWorld = "highschoolia_01",
+        texture = "",
+        taskRewards = "academy_task_rewards",
+        scrollRewards = "academy_scrolls",
+        lastTask = "NPC_Travis_FindDancePartner",
+    },
+    { -- 12
+        collection = "pirate_island",
+        startingWorld = "pirate_01",
+        texture = "",
+        taskRewards = "",
+        scrollRewards = "",
+        lastTask = "",
+    },
+    {
+        collection = "day2",
+        startingWorld = "",
+        texture = "",
+        taskRewards = "day2socialize_task_rewards",
+        scrollRewards = "",
+        lastTask = "",
+    }
 }
 
-Constants.AllScrollRewards = {
-    ["academy_island"] = "academy_scrolls",
-    ["animal_island"] = "animal_scrolls",
-    ["candy_island"] = "candy_scrolls",
-    ["castle_island"] = "capital_scrolls",
-    ["cowboy_junction_island"] = "cowboy_junction_scrolls",
-    ["cutesburgh_island"] = "cutopia_scrolls",
-    ["gonk_island"] = "gonk_scrolls",
-    ["tree_island"] = "leaf_scrolls",
-    ["rocket_reef_island"] = "rocket_reef_scrolls",
-    ["spookane_island"] = "spookane_scrolls",
-    ["trevor_island"] = "trevor_scrolls",
+--- Table containing extra safe positions to spawn sims at
+Constants.ExtraSafePositions = {
+    animal_01 = {
+        { x = 70.2, y = 3.80, z = 19.7 }, -- bear location
+    },
+    reward_01 = { -- random points around buildable region
+        { x = 23.8, y = 0.63, z = 51.2 },
+        { x = 25.2, y = 0.63, z = 39.1 },
+        { x = 38.0, y = 0.63, z = 31.0 },
+        { x = 50.6, y = 0.63, z = 37.5 },
+        { x = 50.9, y = 0.63, z = 47.9 },
+        { x = 50.4, y = 0.63, z = 58.3 },
+        { x = 42.2, y = 0.63, z = 61.1 },
+        { x = 35.5, y = 0.63, z = 55.9 },
+        { x = 28.1, y = 0.63, z = 59.0 },
+    },
+}
+
+--- Table containing extra POI (Points of Interest) sims can route to
+Constants.ExtraPoi = {
+    animal_01 = {
+        { x = 70.2, z = 19.7 }, -- bear location
+    },
+    cowboy_junction_01 = {
+        { x = 68.0, z = 33.0 },
+    },
 }

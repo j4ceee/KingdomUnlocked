@@ -8,13 +8,276 @@ Classes.CharacterBase._instanceVars.autoBR = nil -- the buildable region the cha
 Classes.CharacterBase._instanceVars.autoIntNo = 0 -- number of available interactions in search distance
 Classes.CharacterBase._instanceVars.autoLastAction = nil -- last action performed by the character
 
+Classes.CharacterBase._instanceVars.lastCoords = nil -- coordinates when constructed
+Classes.CharacterBase._instanceVars.openAction = nil -- whether the spawned character has an outstanding action
+
 function Classes.CharacterBase:SetMySpecificScale()
     self:SetScale( self.fVisScale )
 end
 
+--- safety margin for y coordinate when teleporting sims
+local simTpSafety = 0.5
+--- safety margin when checking for ground height (higher than highest point in-game, so that always highest point is returned)
+local simGroundSafety = 8.0
+
+-----------------------
+-- Sim Spawning
+---
+
+
+--- Constructor for the CharacterBase class
+function Classes.CharacterBase:Constructor()
+    if EA.LogMod then
+        EA:LogMod("Unlocked", "CharacterBase:Constructor ", tostring(self.mType))
+    end
+    self.actionQueue = {}
+
+    self.schedule = Classes.Schedule:New( self, "ScheduleComponent")
+
+    self.controllingJob = nil
+
+    --- custom code start
+    local mTypeString = tostring(self.mType)
+    if mTypeString == "NPC_Linzey" or mTypeString == "NPC_Buddy" or mTypeString == "Player" then
+        -- never teleport Lindsay, Buddy or the player; they are handled by the game engine
+        return
+    end
+    --EA:LogMod("Unlocked", "CharacterBase Snapping to safe position ", mTypeString, tostring(self.containingObject), tostring(self.containingWorld))
+
+    if self.containingObject ~= self.containingWorld then
+        -- never teleport NPCs that are not currently wandering the world
+        return
+    end
+
+    -- sometimes game crashes after Constructor() & before BeginIslandSimulationCallback() due to invalid position
+    -- thus teleport all sims to world safe position here -> all positions are reset
+    local x, y, z, rotY = self:GetPositionRotation()
+    if (not (x == 0 and y == 0 and z == 0 and rotY == 0)) then -- sims has never been spawned before
+        self.lastCoords = { x = x, y = y, z = z, rotY = rotY } -- store coordinates when constructed
+        self:TeleportToSchedule()
+    end
+    --- custom code end
+end
+
+--- Callback for when the island simulation begins
+function Classes.CharacterBase:BeginIslandSimulationCallback(islandRefSpec) --- custom code
+    -- EA:LogI("Steve", "CharacterBase:BeginIslandSimulationCallback ", tostring(islandRefSpec[1]), tostring(islandRefSpec[2]))
+    local mTypeString = tostring(self.mType)
+
+    -- snap to safe position if the character was interacting with an object (prevents characters being teleported into objects)
+    if self.containingObject ~= self.containingWorld then
+        if EA.LogMod then
+            EA:LogMod("Unlocked", "CharacterBase:BeginIslandSimulationCallback - Snapping to safe position ", mTypeString, tostring(self.containingObject), tostring(self.containingWorld))
+        end
+        self:SnapToSafePosition(true)
+    end
+
+    if mTypeString == "NPC_Linzey" or mTypeString == "NPC_Buddy" or mTypeString == "Player" then
+        -- never teleport Lindsay, Buddy or the player; they are handled by the game engine
+        return
+    end
+
+    if EA.LogMod then
+        EA:LogMod("Unlocked", "CharacterBase:BeginIslandSimulationCallback ", mTypeString)
+    end
+
+    -- redistribute the sims around island
+    -- if previous position is valid, place sims there
+    -- otherwise find new spot (like from schedule block or random destination)
+    if self.lastCoords == nil or self:IsAreaOutOfBounds(self.lastCoords.x, self.lastCoords.y, self.lastCoords.z) then
+        if EA.LogMod then
+            EA:LogMod("Unlocked", "CharacterBase:BeginIslandSimulationCallback - Old Position out of bounds", mTypeString)
+        end
+        -- do nothing, we already teleported the sim to a safe position in the constructor, so just keep the sim there
+    else
+        local groundY = self.containingWorld:GetGroundHeight(self.lastCoords.x, self.lastCoords.y + simGroundSafety, self.lastCoords.z)
+        if EA.LogMod then
+            EA:LogMod("Unlocked", "CharacterBase:BeginIslandSimulationCallback - Position within bounds, teleporting to", self.lastCoords.x, groundY + simTpSafety, self.lastCoords.z, mTypeString)
+        end
+        self:SetPositionRotation( self.lastCoords.x, groundY + simTpSafety, self.lastCoords.z, self.lastCoords.rotY )
+    end
+    self.lastCoords = nil -- reset lastCoords after teleporting
+end
+
+
+--- Check if an area around a center point is out of bounds
+--- @param centerX number X coordinate of the center point
+--- @param centerY number Y coordinate of the center point
+--- @param centerZ number Z coordinate of the center point
+--- @param radius number Radius around the center point to check (default is 2)
+function Classes.CharacterBase:IsAreaOutOfBounds(centerX, centerY, centerZ, radius)
+    radius = radius or 2 -- default 2-unit radius around the center point
+
+    -- check corners of a square around the center point
+    local checkPoints = {
+        -- top row
+        --{centerX - radius, centerY, centerZ + radius}, -- top-left
+        {centerX,          centerY, centerZ + radius}, -- top-center
+        --{centerX + radius, centerY, centerZ + radius}, -- top-right
+
+        -- middle row
+        {centerX - radius, centerY, centerZ},          -- middle-left
+        {centerX,          centerY, centerZ},          -- center (original position)
+        {centerX + radius, centerY, centerZ},          -- middle-right
+
+        -- bottom row
+        --{centerX - radius, centerY, centerZ - radius}, -- bottom-left
+        {centerX,          centerY, centerZ - radius}, -- bottom-center
+        --{centerX + radius, centerY, centerZ - radius}, -- bottom-right
+    }
+
+    for i, point in ipairs(checkPoints) do
+        if self:IsPositionOutOfBounds(point[1], point[2], point[3]) then
+            if EA.LogMod then
+                EA:LogMod("Unlocked", "Corner", i, "out of bounds at", point[1], point[2], point[3])
+            end
+            return true
+        end
+    end
+
+    -- all points are valid
+    return false
+end
+
+--- Check if a given position is out of bounds
+--- @param x number X coordinate
+--- @param y number Y coordinate
+--- @param z number Z coordinate
+--- @return boolean true if the position is out of bounds, false otherwise
+function Classes.CharacterBase:IsPositionOutOfBounds(x, y, z)
+    local groundY = self.containingWorld:GetGroundHeight(x, y + simGroundSafety, z)
+    local footprintType = self.containingWorld:GetFootPrintType( x, groundY, z, FootPrintType.FootPrintType_Impassable )
+    return (
+            footprintType == FootPrintType.FootPrintType_Impassable or
+            groundY == nil
+    ) -- position is out of bounds if it is impassable / not prospectable / ground height is nil
+end
+
+--- Teleport the character to the location of the current schedule block or a random destination if no block is available
+function Classes.CharacterBase:TeleportToSchedule()
+    local mTypeString = tostring(self.mType)
+    local xS, yS, zS, rotY = self:GetPositionRotation()
+    local x, y, z
+    ---------------------
+    -- Teleport to schedule block
+    --
+    if self.schedule ~= nil then
+        local block = nil
+        block = self.schedule:GetCurrentScheduleBlock()
+        if block ~= nil then
+            local worldName
+            x, y, z, worldName = self.schedule:GetBlockCoords(block)
+            if worldName ~= nil and not (x == -1 and y == -1 and z == -1) and not (x == xS and y == yS and z == zS) then
+                -- if the block has a valid position and is not the same as the current position, teleport to it
+                -- (sometimes schedules just use the current position, there is no sense in teleporting there -> go to random destination)
+                y = y or self.containingWorld:GetGroundHeight(x, (y or 1) + simGroundSafety, z)
+                if EA.LogMod then
+                    EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - Teleporting to schedule block", block.name, "at", x, y, z, "in world", worldName, mTypeString)
+                end
+                self:SetPositionRotation( x, y + simTpSafety, z, rotY ) -- teleport the sim to the position of the schedule block
+                return
+            end
+        end
+    end
+
+    ---------------------
+    -- Teleport to any safe position
+    --
+    --EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - No valid schedule block, using random destination ", mTypeString)
+    local destList = {}
+    if self.containingWorld.mName ~= "reward_01" then -- everywhere except the reward island
+        --EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - Getting all safe positions in world", self.containingWorld.mName, mTypeString)
+        destList = Common:GetAllObjectsOfTypes({ "buildable_region", "fishing_bucket" }, self.containingWorld) -- include br safe positions and fishing buckets
+    end
+
+    -- check for manually defined extra safe positions
+    local extraSafePos = Constants.ExtraSafePositions[tostring(self.containingWorld.mName)]
+    if extraSafePos then
+        --EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - Adding extra safe positions for world", self.containingWorld.mName, mTypeString)
+        for _, pos in ipairs(extraSafePos) do
+            -- add extra safe positions to the destination list
+            pos.mType = "Coordinate"
+            destList[#destList + 1] = pos
+        end
+    end
+
+    local destNo = #destList
+    if destNo > 0 then
+        --EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - Found", destNo, "destinations in world", self.containingWorld.mName, mTypeString)
+        -- if there valid destinations, choose one at random
+        local destIndex = math.random(destNo)
+        local dest = destList[destIndex]
+
+        if dest.mType == "BuildableRegion" then -- buildable region
+            x, y, z = dest:GetSafePosition()
+            x = x + math.random(-1, 1) -- random offset to prevent all sims from spawning at the same position
+            z = z + math.random(-1, 1)
+
+        elseif dest.mType == "Coordinate" then -- manually defined coordinate
+            --EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - Using coordinate destination")
+            x = dest.x + math.random(-0.5, 0.5) -- random offset
+            y = dest.y
+            z = dest.z + math.random(-0.5, 0.5)
+
+        else -- object
+            x, y, z = dest:GetPositionRotation()
+        end
+
+        if EA.LogMod then
+            EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - Using destination", destIndex, "of", destNo, "destinations ", mTypeString)
+        end
+    else
+        -- if no buildable regions found, use the world safe position (should never happen)
+        x, y, z = self:GetWorldSafePosition()
+        x = x + math.random(-0.5, 0.5) -- random offset to prevent all sims from spawning at the same position
+        z = z + math.random(-0.5, 0.5)
+        y = y + math.random(2, 5) -- stack sims to prevent clipping into ground
+        --EA:LogMod("Unlocked", "CharacterBase:TeleportToSchedule - No destinations found, using world safe position ", mTypeString)
+    end
+
+    self:SetPositionRotation( x, y + simGroundSafety, z, rotY )
+end
+
+-----------------------
+-- Sim Autonomy
+---
+
 function Classes.CharacterBase:MainLoop()
 
     while true do
+        --if self.openAction and self.containingObject ~= self.containingWorld then
+        --    local mTypeString = tostring(self.mType)
+        --    local obj = self.containingObject
+        --    local firstKey = self.openAction
+        --    EA:LogMod("Unlocked", "CharacterBase:BeginIslandSimulationCallback -", tostring(firstKey), "interaction set for", mTypeString)
+        --
+        --    local nucleus = InteractionNucleus:Create( obj, firstKey, nil, Constants.InteractionPriorities.UserDriven )
+        --
+        --    if nucleus.object ~= nil then
+        --        nucleus.object:InUseAddRef()
+        --    end
+        --
+        --    local job = nucleus:CreateInteractionInstance(self)
+        --    job:Execute(self)
+        --    local result, reason = job:BlockOn()
+        --
+        --    if self.schedule then
+        --        self.schedule:RequestCancel()
+        --    end
+        --
+        --    if self.action ~= nil and self.action.isValid then
+        --        self.action:Kill( true )
+        --    end
+        --
+        --    local result, reason = self:ProcessInteractionJob(job)
+        --
+        --    if nucleus.object ~= nil then
+        --        nucleus.object:InUseDecRef()
+        --    end
+        --
+        --    self.openAction = nil
+        --end
+
         EA:ProfileEnterBlock("Lua__CharacterBase_MainLoop")
         self:ProcessControlRequest()
 
@@ -26,7 +289,7 @@ function Classes.CharacterBase:MainLoop()
         elseif self.schedule ~= nil and DebugMenu:GetValue("EnableScheduleAutonomy") then
 
             result = self.schedule:ProcessSchedule()
-            --- custom code start
+        --- custom code start
             if result == nil and not self.bAutonomyRunning then
                 -- if schedule is nil, execute real fake autonomy
                 self:RealFakeAutonomy(true)
@@ -39,7 +302,7 @@ function Classes.CharacterBase:MainLoop()
             self.bAutonomyRunning = false
         else
             result = BlockingResult.Failed
-            --- custom code end
+        --- custom code end
         end
 
         -- We can only guarantee that a blocking operation occurred if we got a succeeded result.
@@ -112,6 +375,15 @@ function Classes.CharacterBase:RealFakeAutonomy(bForceOn)
         elseif actionChance <= 30 and not bIsInterior and self.autoLastAction ~= "route" then
             local destList = Common:GetAllObjectsOfTypes({ "buildable_region", "fishing_bucket", "boat" })
 
+            local extraPoi = Constants.ExtraPoi[tostring(self.containingWorld.mName)]
+            if extraPoi then
+                for _, pos in ipairs(extraPoi) do
+                    -- add extra safe positions to the destination list
+                    pos.mType = "Coordinate"
+                    destList[#destList + 1] = pos
+                end
+            end
+
             if #destList < 3 then
                 -- if there are not enough destinations, remove boats from the list (prevent cluttering)
                 destList = Common:GetAllObjectsOfTypes({ "buildable_region", "fishing_bucket" })
@@ -121,14 +393,19 @@ function Classes.CharacterBase:RealFakeAutonomy(bForceOn)
                 local dest = destList[math.random(#destList)]
                 self.autoBR = nil -- set the autoBR to the destination
 
-                local x, y, z, dist
+                local x, _, z, dist
                 if dest.mType == "BuildableRegion" then
                     -- buildable region
-                    x, y, z = dest:GetSafePosition()
-                    dist = 2
+                    x, _, z = dest:GetSafePosition()
+                    dist = 2 -- distance to route to
+                elseif dest.mType == "Coordinate" then
+                    -- coordinate
+                    x = dest.x
+                    z = dest.z
+                    dist = 3
                 else
                     -- object
-                    x, y, z, _ = dest:GetPositionRotation()
+                    x, _, z = dest:GetPositionRotation()
                     dist = 3
                 end
 
@@ -214,8 +491,10 @@ function Classes.CharacterBase:RealFakeAutonomy(bForceOn)
     return
 end
 
-
+-----------------------
 -- new interaction sets
+---
+
 Classes.CharacterBase.interactionSet.DebugUi =   {
     name                    = "Debug Menu",
     interactionClassName    = "Unlocked_SocialMenu",
@@ -510,3 +789,59 @@ function Classes.Debug_Interaction_ForceNPCUse:Action( player, obj )
 end
 --}}}
 
+
+--{{{ Schedule.lua --------------------------------------------------------------
+function Classes.Schedule:GetBlockCoords(block)
+
+    block = block or self:GetCurrentScheduleBlock()
+
+    local x, y, z, worldName, rotY
+
+    if type(block.location) == 'string' then
+
+        local br = Universe:GetWorld():FindGameObject("buildable_region", block.location)
+
+        --- custom code start
+        if br == nil then
+            EA:LogE("Schedule:GetBlockCoords", "Could not find buildable region with name:", block.location)
+            return -1, -1, -1, nil, 0
+        end
+        --- custom code end
+
+        x,y,z = br:GetSafePosition()
+        worldName = tostring(br.containingWorld)
+
+        ---[[
+        --Can force defaults for interiors
+        if Luattrib:ReadAttribute( "world", worldName, "InteriorWorld" ) then
+            block.maxDistance = 1000
+            block.targetDistance = 1
+        else
+            block.maxDistance = 1000
+            block.targetDistance = 5
+        end
+        --]]
+
+    else
+        x = block.location["x"]
+        y = block.location["y"]
+        z = block.location["z"]
+        worldName = block.location["worldName"]
+        rotY = block.location["rotY"]
+    end
+
+    if x == nil then
+        if block.location["npcType"] ~= nil then
+            local npc = Common:FindSim( block.location["npcType"] )
+
+            if npc ~= nil then
+                local _
+
+                x,y,z = npc:GetPositionRotation()
+                worldName = tostring(npc.containingWorld)
+            end
+        end
+    end
+    return x, y, z, worldName, rotY
+end
+--}}}
